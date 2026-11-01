@@ -13,7 +13,7 @@
 
 // Section 4 reads repositories from this GitHub organization.
 // The public GitHub API needs no key, but it has a rate limit.
-const GITHUB_ORG = "TheFreeCodeSyndicate";
+const GITHUB_ORG = "TheFreeCodeSubculture";
 
 /*
  * Core members (Section 9). A FALLBACK like the SEED_* arrays below:
@@ -92,7 +92,7 @@ const SEED_JOIN_LINKS = [
   {
     platform: "instagram",
     label: "Instagram",
-    url: "https://www.instagram.com/freecodesyndicate/",
+    url: "https://www.instagram.com/freecodeSubculture/",
     hint: "Posters, notes, and session announcements.",
   },
   {
@@ -104,7 +104,7 @@ const SEED_JOIN_LINKS = [
   {
     platform: "github",
     label: "GitHub Organization",
-    url: "https://github.com/TheFreeCodeSyndicate",
+    url: "https://github.com/TheFreeCodeSubculture",
     hint: "Public repositories and the work record.",
   },
 ];
@@ -125,7 +125,7 @@ const SEED_STUDY_GROUPS = [
     name: "Crypto Study Group",
     topic: "Study cryptography from first principles. Prove before you trust.",
     status: "Completed",
-    link: "https://github.com/TheFreeCodeSyndicate/CRYPTO_STUDY_GROUP",
+    link: "https://github.com/TheFreeCodeSubculture/CRYPTO_STUDY_GROUP",
     link_text: "Check the repository",
   },
   {
@@ -139,7 +139,7 @@ const SEED_STUDY_GROUPS = [
     name: "Anti Aliasing: A Computer Graphics Study Group",
     topic: "Study computer graphics from first principles. Learn to render, shade, and animate.",
     status: "Forming",
-    link: "https://github.com/TheFreeCodeSyndicate/anti-aliasing",
+    link: "https://github.com/TheFreeCodeSubculture/anti-aliasing",
     link_text: "Read the repositories",
   },
 ];
@@ -170,7 +170,7 @@ const SEED_EVENTS = [
     starts_at: "2026-07-28T15:30:00.000Z",
     duration_minutes: 60,
     stage: "done",
-    link: "https://github.com/TheFreeCodeSyndicate/CRYPTO_STUDY_GROUP",
+    link: "https://github.com/TheFreeCodeSubculture/CRYPTO_STUDY_GROUP",
     link_text: "Check the repository",
   },
   {
@@ -211,7 +211,7 @@ const SEED_RESOURCES = [
   {
     title: "CRYPTO_STUDY_GROUP",
     kind: "notes",
-    url: "https://github.com/TheFreeCodeSyndicate/CRYPTO_STUDY_GROUP",
+    url: "https://github.com/TheFreeCodeSubculture/CRYPTO_STUDY_GROUP",
     summary: "Public study notes and exercises from the crypto track.",
     group_name: "Crypto Study Group",
   },
