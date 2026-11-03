@@ -21,7 +21,7 @@ window.FCS_CONFIG = {
   supabaseAnonKey:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ka3BlY21jdnpqYWtlYXZhcWNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2MTExNDgsImV4cCI6MjEwNjE4NzE0OH0.m6OXUYsRI_8GXpPozY8JvlzofAMWE38cOK9PkSO_q5U",
 
-  communityName: "The Free Code Syndicate",
+  communityName: "The Free Code Subculture",
 
   // Weekday select order. Matches JavaScript Date.getDay(), which is
   // also what the class_sessions.weekday column stores.

@@ -12,7 +12,7 @@
  */
 import { escapeHTML as esc, renderMarkdown, plainSummary, readingTime, emojiHTML } from "./markdown.js";
 
-export const SITE = "https://thefreecodesyndicate.github.io/fcs-site/";
+export const SITE = "https://thefreecodesubculture.github.io/fcs-site/";
 
 // Images from any https site (posts may link one; images cannot run
 // code); KaTeX fonts from our own site; YouTube only through its
@@ -147,7 +147,7 @@ function shell({ root, title, description, url, image, imageAlt = "", body, type
   <meta name="description" content="${esc(description)}" />
   <link rel="canonical" href="${esc(url)}" />
   <meta property="og:type" content="${type}" />
-  <meta property="og:site_name" content="The Free Code Syndicate" />
+  <meta property="og:site_name" content="The Free Code Subculture" />
   <meta property="og:title" content="${esc(title)}" />
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:url" content="${esc(url)}" />
@@ -213,11 +213,11 @@ export function postPage(post, { others = [], social = [] } = {}) {
     social,
     scripts: `\n  <script type="module" src="${root}js/post-rail.js"></script>\n  <script type="module" src="${root}js/image-zoom.js"></script>`,
     root: "../../",
-    title: `${post.title} | The Free Code Syndicate`,
+    title: `${post.title} | The Free Code Subculture`,
     description: describe(post),
     url: `${SITE}blog/${post.slug}/`,
     image: ogImageURL(`blog/${post.slug}/og.jpg`, post.updated_at || post.published_at),
-    imageAlt: `${post.title}, on The Free Code Syndicate's blog`,
+    imageAlt: `${post.title}, on The Free Code Subculture's blog`,
     article: { published: post.published_at, modified: post.updated_at, authors: postAuthors(post) },
     type: "article",
     math: html.includes('class="math'),
@@ -292,13 +292,13 @@ const CREDITS = [
 ];
 export function blogFooterHTML(root, social = []) {
   const links = social.filter((l) => /^https:\/\//.test(l.url || "")).slice(0, 6);
-  const connect = links.length ? links : [{ label: "GitHub", url: "https://github.com/TheFreeCodeSyndicate" }];
+  const connect = links.length ? links : [{ label: "GitHub", url: "https://github.com/TheFreeCodeSubculture" }];
   return `  <footer class="blog-footer">
     <div class="blog-footer-grid">
       <div class="bf-brand">
-        <a class="bf-logo" href="${root}"><img src="${root}assets/logoicon.svg" alt="" width="28" height="26" /><span>The Free Code Syndicate</span></a>
+        <a class="bf-logo" href="${root}"><img src="${root}assets/logoicon.svg" alt="" width="28" height="26" /><span>The Free Code Subculture</span></a>
         <p class="bf-tag">A public group for free code, study, and careful work.</p>
-        <p class="bf-legal">&copy; ${new Date().getUTCFullYear()} The Free Code Syndicate<br /><a href="${root}privacy.html">Privacy</a><a href="https://github.com/TheFreeCodeSyndicate/fcs-site" target="_blank" rel="noopener">Source</a></p>
+        <p class="bf-legal">&copy; ${new Date().getUTCFullYear()} The Free Code Subculture<br /><a href="${root}privacy.html">Privacy</a><a href="https://github.com/TheFreeCodeSubculture/fcs-site" target="_blank" rel="noopener">Source</a></p>
       </div>
       <nav class="bf-col" aria-label="Read">
         <p class="bf-head">Read</p>
@@ -382,15 +382,15 @@ export function indexPage(posts, { social = [] } = {}) {
   const more = posts.slice(3).map((p) => card(p, { compact: true })).join("\n");
   return shell({
     root: "../",
-    title: "Blog | The Free Code Syndicate",
-    description: "Notes, write-ups and updates from The Free Code Syndicate.",
+    title: "Blog | The Free Code Subculture",
+    description: "Notes, write-ups and updates from The Free Code Subculture.",
     url: `${SITE}blog/`,
     image: ogImageURL("blog/og/blog.jpg", posts[0] && (posts[0].updated_at || posts[0].published_at)),
-    imageAlt: "The Free Code Syndicate's blog: notes, write-ups and updates",
+    imageAlt: "The Free Code Subculture's blog: notes, write-ups and updates",
     body: `  <main class="blog-index">
     <header class="blog-hero">
       <p class="blog-eyebrow">Blog &amp; notes</p>
-      <h1 class="blog-headline">Notes, write&#8209;ups and updates <span>from the Syndicate</span></h1>
+      <h1 class="blog-headline">Notes, write&#8209;ups and updates <span>from the Subculture</span></h1>
     </header>
     ${posts.length ? `<ul class="post-grid">
 ${featured}

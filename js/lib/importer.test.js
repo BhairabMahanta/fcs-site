@@ -197,8 +197,8 @@ test("rehostImages copies images sequentially and rewrites block url to cdnURL",
   const result = await rehostImages(sections, deps);
   assert.equal(result.copied, 1);
   assert.equal(result.left.length, 0);
-  assert.equal(result.sections[0].blocks[0].url, "https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@abc1234/blog/2026/10/test.png");
-  assert.ok(result.sections[0].markdown.includes("https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@abc1234/blog/2026/10/test.png"));
+  assert.equal(result.sections[0].blocks[0].url, "https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@abc1234/blog/2026/10/test.png");
+  assert.ok(result.sections[0].markdown.includes("https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@abc1234/blog/2026/10/test.png"));
   assert.deepEqual(fetched, ["https://miro.medium.com/max/800/1*a.png"]);
   assert.equal(putCalls.length, 1);
   assert.equal(putCalls[0].ext, "png");
@@ -262,7 +262,7 @@ test("rehostImages falls back to resizeURL when image exceeds maxBytes and resiz
   assert.equal(fetched.length, 2);
   assert.equal(fetched[0], "https://miro.medium.com/max/2400/1*heavy.png");
   assert.equal(fetched[1], "https://miro.medium.com/v2/resize:fit:1400/1*heavy.png");
-  assert.ok(result.sections[0].markdown.includes("https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@sha999/blog/2026/10/resized.png"));
+  assert.ok(result.sections[0].markdown.includes("https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@sha999/blog/2026/10/resized.png"));
 });
 
 test("rehostImages refuses GIF and leaves it hotlinked with explanation in left", async () => {
@@ -625,9 +625,9 @@ test("handleAction import action completes full flow with rehosting, assembly, a
 
   assert.equal(res.status, 200);
   assert.ok(res.body.markdown.includes("Originally published on [Medium]"));
-  assert.ok(res.body.markdown.includes("https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@sha123"));
+  assert.ok(res.body.markdown.includes("https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@sha123"));
   assert.deepEqual(res.body.cover, {
-    url: "https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@sha123/blog/2026/10/img.png",
+    url: "https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@sha123/blog/2026/10/img.png",
   });
   assert.equal(res.body.images.copied, 1);
   assert.ok(Array.isArray(res.body.warnings));

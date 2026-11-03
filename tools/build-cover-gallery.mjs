@@ -74,7 +74,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function getJSON(url, tries = 4) {
   for (let i = 0; ; i++) {
     await sleep(250);
-    const res = await fetch(url, { headers: { "User-Agent": "fcs-site cover gallery (github.com/TheFreeCodeSyndicate/fcs-site)" } });
+    const res = await fetch(url, { headers: { "User-Agent": "fcs-site cover gallery (github.com/TheFreeCodeSubculture/fcs-site)" } });
     if (res.ok) return res.json();
     if (i >= tries || ![403, 429, 503].includes(res.status)) throw new Error(`${url} -> ${res.status}`);
     await sleep(8000 * (i + 1));

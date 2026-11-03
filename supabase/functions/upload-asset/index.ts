@@ -13,7 +13,7 @@
 // smaller.
 //
 // Needs the Edge Function secret GITHUB_ASSETS_TOKEN: a fine-grained
-// GitHub token for TheFreeCodeSyndicate/fcs-assets with "Contents: Read
+// GitHub token for TheFreeCodeSubculture/fcs-assets with "Contents: Read
 // and write" and nothing else. It never reaches the browser.
 // --------------------------------------------------------------------
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -21,7 +21,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { encodeBase64 } from "jsr:@std/encoding@1/base64";
 import { REPO, assetPath, cdnURL, refusal } from "./asset.js";
 
-const ALLOWED_ORIGINS = ["http://localhost:8000", "https://thefreecodesyndicate.github.io"];
+const ALLOWED_ORIGINS = ["http://localhost:8000", "https://thefreecodesubculture.github.io"];
 
 function cors(origin: string | null) {
   return {

@@ -1,5 +1,5 @@
 -- supabase/schema.sql
--- The Free Code Syndicate — schema, Row Level Security, and seed data.
+-- The Free Code Subculture — schema, Row Level Security, and seed data.
 --
 -- HOW TO RUN
 --   1. Go to https://supabase.com and create a free project.
@@ -303,18 +303,18 @@ create policy "admins delete" on public.repo_kinds for delete to authenticated
 -- Note the new Discord invite, replacing the expired one.
 insert into public.social_links (platform, label, url, hint, sort_order) values
   ('discord',   'Discord Server',     'https://discord.gg/97BAafVesn', 'Study rooms, voice rooms, and code help.', 1),
-  ('instagram', 'Instagram',          'https://www.instagram.com/freecodesyndicate/', 'Posters, notes, and session announcements.', 2),
+  ('instagram', 'Instagram',          'https://www.instagram.com/freecodeSubculture/', 'Posters, notes, and session announcements.', 2),
   ('whatsapp',  'WhatsApp Community', 'https://chat.whatsapp.com/Dks4VUe0E5n7xmilaKTqXS', 'Daily messages and notices.', 3),
-  ('github',    'GitHub Organization','https://github.com/TheFreeCodeSyndicate', 'Public repositories and the work record.', 4)
+  ('github',    'GitHub Organization','https://github.com/TheFreeCodeSubculture', 'Public repositories and the work record.', 4)
 on conflict (id) do nothing;
 
 insert into public.study_groups (name, topic, status, link, link_text, sort_order) values
   ('Crypto Study Group', 'Study cryptography from first principles. Prove before you trust.', 'Completed',
-   'https://github.com/TheFreeCodeSyndicate/CRYPTO_STUDY_GROUP', 'Check the repository', 1),
+   'https://github.com/TheFreeCodeSubculture/CRYPTO_STUDY_GROUP', 'Check the repository', 1),
   ('Systems Reading Room', 'Read operating systems, networks, compilers, and the machine layer below user programs.', 'Forming',
    'https://discord.gg/97BAafVesn', 'Help form the room', 2),
   ('Anti Aliasing: A Computer Graphics Study Group', 'Study computer graphics from first principles. Learn to render, shade, and animate.', 'Forming',
-   'https://github.com/TheFreeCodeSyndicate/anti-aliasing', 'Read the repositories', 3)
+   'https://github.com/TheFreeCodeSubculture/anti-aliasing', 'Read the repositories', 3)
 on conflict (id) do nothing;
 
 -- The three existing events, already in the past, seeded as done so the
@@ -323,7 +323,7 @@ on conflict (id) do nothing;
 --   delete from public.events;
 insert into public.events (title, group_name, details, starts_at, duration_minutes, stage, link, link_text, sort_order) values
   ('Explain-3 Session', 'Crypto Study Group', 'A study session for the next Explain track discussion.',
-   '2026-07-28T15:30:00Z', 60, 'done', 'https://github.com/TheFreeCodeSyndicate/CRYPTO_STUDY_GROUP', 'Check the repository', 1),
+   '2026-07-28T15:30:00Z', 60, 'done', 'https://github.com/TheFreeCodeSubculture/CRYPTO_STUDY_GROUP', 'Check the repository', 1),
   ('CryptoMeet-3 Session', 'Crypto Study Group', 'A meeting for discussing the PCSP project, DES and AES, and some public key cryptography.',
    '2026-08-04T15:30:00Z', 60, 'done', 'https://discord.gg/97BAafVesn', 'Join Discord', 2),
   ('Quantum Computing and PQC Session', 'Crypto Study Group', 'A meeting for discussing quantum computing and post-quantum cryptography.',

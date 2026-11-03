@@ -58,7 +58,7 @@ async function fetchImage(url, width, height, { round = false } = {}) {
     const res = own ? null : await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (res && !res.ok) return null;
     let pipe = sharp(own || Buffer.from(await res.arrayBuffer())).resize(width * 2, height * 2, { fit: "cover" });
-    return round ? dataURI(await pipe.png().toBuffer(), "image/png") : dataURI(await pipe.jpeg({ quality: 82 }).toBuffer(), "image/jpeg");
+    return round ? dataURI(await pipe.png().toBuffer(), "image/png") : dataURI(await pipe.flatten({ background: C.paper }).jpeg({ quality: 82 }).toBuffer(), "image/jpeg");
   } catch {
     return null;
   }
@@ -98,7 +98,7 @@ const brand = (section) =>
   h("div", { display: "flex", alignItems: "center", gap: 14 },
     img(MARK, { width: 56, height: 56 }),
     h("div", { display: "flex", fontFamily: "Fira Code", fontSize: 22, letterSpacing: 1, color: C.ink },
-      "THE FREE CODE SYNDICATE",
+      "THE FREE CODE SUBCULTURE",
       section ? h("span", { color: C.muted, marginLeft: 10 }, `/ ${section}`) : null));
 
 /** Long titles get smaller type so three lines still fit. */
@@ -106,17 +106,19 @@ const titleSize = (text) => (text.length <= 34 ? 76 : text.length <= 60 ? 64 : 5
 
 const clamp = (lines) => ({ display: "block", lineClamp: lines, overflow: "hidden" });
 
+/** One round avatar: the picture, or the person's initials on yellow. */
+const face = (a, src, size, style = {}) =>
+  src
+    ? img(src, { width: size, height: size, borderRadius: size / 2, border: `3px solid ${C.ink}`, objectFit: "cover", ...style })
+    : h("div", { display: "flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: size / 2, border: `3px solid ${C.ink}`, background: C.accent, fontFamily: "Archivo", fontWeight: 800, fontSize: Math.round(size / 3), flexShrink: 0, ...style },
+        a.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase());
+
 /** Overlapping round avatars and the authors' names. */
 function people(authors, avatars) {
   if (!authors.length) return null;
   const names = authors.length === 1 ? authors[0].name : authors.length === 2 ? `${authors[0].name} and ${authors[1].name}` : `${authors[0].name} and ${authors.length - 1} others`;
   return h("div", { display: "flex", alignItems: "center", gap: 16 },
-    h("div", { display: "flex" },
-      ...authors.slice(0, 3).map((a, i) =>
-        avatars[i]
-          ? img(avatars[i], { width: 56, height: 56, borderRadius: 28, border: `3px solid ${C.ink}`, marginLeft: i ? -12 : 0, objectFit: "cover" })
-          : h("div", { display: "flex", alignItems: "center", justifyContent: "center", width: 56, height: 56, borderRadius: 28, border: `3px solid ${C.ink}`, marginLeft: i ? -12 : 0, background: C.accent, fontFamily: "Archivo", fontWeight: 800, fontSize: 18 },
-              a.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()))),
+    h("div", { display: "flex" }, ...authors.slice(0, 3).map((a, i) => face(a, avatars[i], 56, { marginLeft: i ? -12 : 0 }))),
     h("div", { display: "flex", fontFamily: "Archivo", fontWeight: 600, fontSize: 28, color: C.ink, maxWidth: 420 }, names));
 }
 
@@ -167,9 +169,14 @@ export async function postCard(post) {
     panel({ cover, icon, tint: cover ? null : tintOf(post.slug) })));
 }
 
-/** The blog index and the home page: a headline, a line under it, a footer line, and the newest post's panel. */
-export async function siteCard({ section, headline, accent, line, foot, latest, mark = false }) {
-  const [cover, icon] = latest && !mark ? await Promise.all([latest.cover ? fetchImage(latest.cover, 412, 510) : null, iconSource(latest.icon, 200)]) : [null, null];
+/** The blog index and the home page: a headline, a line under it, a footer line, and the newest post's panel.
+ *  `by` ({name, avatar}) puts that member's avatar at the left of the footer line. */
+export async function siteCard({ section, headline, accent, line, foot, by, latest, mark = false }) {
+  const [cover, icon, byAvatar] = await Promise.all([
+    latest && !mark && latest.cover ? fetchImage(latest.cover, 412, 510) : null,
+    latest && !mark ? iconSource(latest.icon, 200) : null,
+    by?.avatar ? fetchImage(by.avatar, 52, 52, { round: true }) : null,
+  ]);
   return render(page(
     h("div", { display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, minWidth: 0 },
       brand(section),
@@ -178,6 +185,8 @@ export async function siteCard({ section, headline, accent, line, foot, latest, 
           h("div", { display: "flex" }, headline),
           accent ? h("div", { display: "flex", alignSelf: "flex-start", background: C.accent, padding: "0 12px", marginLeft: -12, marginTop: 6 }, accent) : null),
         line ? h("div", { ...clamp(2), fontWeight: 500, fontSize: 28, lineHeight: 1.35, color: C.muted }, line) : null),
-      foot ? h("div", { display: "flex", fontFamily: "Fira Code", fontSize: 24, color: C.ink }, foot) : null),
+      foot ? h("div", { display: "flex", alignItems: "center", gap: 16 },
+        by ? face(by, byAvatar, 52) : null,
+        h("div", { ...clamp(2), flex: 1, fontFamily: "Fira Code", fontSize: 24, lineHeight: 1.3, color: C.ink }, foot)) : null),
     panel({ cover, icon, mark, tint: latest && !cover ? tintOf(latest.slug) : null })));
 }

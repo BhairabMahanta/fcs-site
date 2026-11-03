@@ -3,7 +3,7 @@
 // Pure helpers for the medium-import function, kept free of Deno APIs so
 // `npm test` can import them.
 
-export const REPO = "TheFreeCodeSyndicate/fcs-assets";
+export const REPO = "TheFreeCodeSubculture/fcs-assets";
 export const MAX_BYTES = 2 * 1024 * 1024;
 
 const startsWith = (bytes, sig, at = 0) => sig.every((b, i) => bytes[at + i] === b);

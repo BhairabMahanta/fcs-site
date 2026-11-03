@@ -255,8 +255,8 @@ test("a section can carry its block model so an image address can be rewritten",
   const [s] = htmlToSections(html, { blocks: true });
   assert.equal(s.blocks[0].type, "image");
   assert.equal(s.blocks[0].url, "https://miro.medium.com/max/800/1*a.png");
-  s.blocks[0].url = "https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@abc/blog/2026/10/x.png";
-  assert.ok(serializeSection(s.blocks).includes("cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@abc"));
+  s.blocks[0].url = "https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@abc/blog/2026/10/x.png";
+  assert.ok(serializeSection(s.blocks).includes("cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@abc"));
   assert.ok(!serializeSection(s.blocks).includes("miro.medium.com"));
 });
 

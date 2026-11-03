@@ -94,7 +94,7 @@ test("a lone carriage return is escaped like any other line break", () => {
 });
 
 test("UID is unique per event id", () => {
-  assert.ok(buildICS(EVENTS, { now: NOW }).includes("UID:abc-123@freecodesyndicate"));
+  assert.ok(buildICS(EVENTS, { now: NOW }).includes("UID:abc-123@freecodesubculture"));
 });
 
 test("DTSTAMP is the injected now, in UTC", () => {

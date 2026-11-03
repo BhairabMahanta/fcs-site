@@ -7,15 +7,15 @@
 //   POST (no body)   Authorization: Bearer <an editor's or admin's token>
 //
 // Needs the Edge Function secret GITHUB_DISPATCH_TOKEN: a fine-grained
-// GitHub token for TheFreeCodeSyndicate/fcs-site with "Actions: Read and
+// GitHub token for TheFreeCodeSubculture/fcs-site with "Actions: Read and
 // write" and nothing else. It never reaches the browser.
 // --------------------------------------------------------------------
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const REPO = "TheFreeCodeSyndicate/fcs-site";
+const REPO = "TheFreeCodeSubculture/fcs-site";
 const WORKFLOW = "pages.yml";
-const ALLOWED_ORIGINS = ["http://localhost:8000", "https://thefreecodesyndicate.github.io"];
+const ALLOWED_ORIGINS = ["http://localhost:8000", "https://thefreecodesubculture.github.io"];
 
 function cors(origin: string | null) {
   return {

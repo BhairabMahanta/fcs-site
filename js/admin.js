@@ -337,7 +337,7 @@ function renderLogin(notice, { email: prefillEmail = "" } = {}) {
   const note = typeof notice === "string" ? { text: notice, tone: "info" } : notice;
   const card = gate(`
     <h1>Sign in to the panel</h1>
-    <p class="gate-sub">For editors and admins of The Free Code Syndicate.</p>
+    <p class="gate-sub">For editors and admins of The Free Code Subculture.</p>
     ${note && note.text ? `<p class="gate-notice gate-notice-${note.tone === "ok" ? "ok" : "info"}" role="status">${icon(note.tone === "ok" ? "check" : "circle-info")}<span>${escapeHTML(note.text)}</span></p>` : ""}
     ${gateField({ id: "login-email", label: "Email", type: "email", icon: "mail", autocomplete: "username" })}
     ${gateField({ id: "login-password", label: "Password", type: "password", icon: "lock", autocomplete: "current-password", reveal: true })}
@@ -400,7 +400,7 @@ async function renderSetPassword(user) {
   const roleName = { admin: "Admin", editor: "Editor" }[role];
   const heading = INVITE ? "Accept your invite" : "Choose a new password";
   const sub = INVITE
-    ? `You have been invited to The Free Code Syndicate's panel${roleName ? ` as <strong>${roleName}</strong>` : ""}.
+    ? `You have been invited to The Free Code Subculture's panel${roleName ? ` as <strong>${roleName}</strong>` : ""}.
        Choose a password for <strong>${escapeHTML(user.email)}</strong> to accept.`
     : `For <strong>${escapeHTML(user.email)}</strong>. At least 8 characters.`;
 
@@ -2862,7 +2862,7 @@ const tagName = (text) => String(text || "").toLowerCase().replace(/[^a-z0-9]+/g
  * points at the live site instead. */
 function liveSiteURL() {
   const here = new URL("./", location.href);
-  return /^(localhost|127\.)/.test(here.hostname) ? "https://thefreecodesyndicate.github.io/fcs-site/" : here.href;
+  return /^(localhost|127\.)/.test(here.hostname) ? "https://thefreecodesubculture.github.io/fcs-site/" : here.href;
 }
 
 function taggedLink({ source, medium, campaign }) {

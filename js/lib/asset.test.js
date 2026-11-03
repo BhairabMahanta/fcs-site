@@ -34,6 +34,6 @@ test("assetPath is dated and takes its extension from the bytes", () => {
 test("cdnURL pins the commit", () => {
   assert.equal(
     cdnURL("deadbeef", "blog/2026/10/a.webp"),
-    "https://cdn.jsdelivr.net/gh/TheFreeCodeSyndicate/fcs-assets@deadbeef/blog/2026/10/a.webp"
+    "https://cdn.jsdelivr.net/gh/TheFreeCodeSubculture/fcs-assets@deadbeef/blog/2026/10/a.webp"
   );
 });

@@ -177,9 +177,9 @@ test("a line break inside a list item survives (Shift+Enter)", () => {
 });
 
 test("bookmarks: a full card with details, the site's name without", () => {
-  const url = "https://github.com/TheFreeCodeSyndicate/fcs-site";
+  const url = "https://github.com/TheFreeCodeSubculture/fcs-site";
   const bare = renderMarkdown(`@[bookmark](${url})`);
-  assert.match(bare, /<a class="bookmark" href="https:\/\/github\.com\/TheFreeCodeSyndicate\/fcs-site"/);
+  assert.match(bare, /<a class="bookmark" href="https:\/\/github\.com\/TheFreeCodeSubculture\/fcs-site"/);
   assert.match(bare, /<strong class="bookmark-title">github\.com<\/strong>/);
   assert.ok(!bare.includes("bookmark-thumb"));
   const full = renderMarkdown(`@[bookmark](${url})`, { links: { [url]: { title: "fcs-site <repo>", description: "The site", image: "https://opengraph.githubassets.com/x.png" } } });

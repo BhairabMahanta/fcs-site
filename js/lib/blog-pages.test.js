@@ -17,12 +17,12 @@ test("a post page escapes the title and carries its own preview tags", () => {
   assert.ok(!html.includes("<b>"));
   assert.match(html, /<h1 class="post-title" style="view-transition-name: vt-title-hello-world; view-transition-class: vt-text">Hello &lt;b&gt;&quot;world&quot;&lt;\/b&gt;<\/h1>/);
   // The preview is the drawn card (tools/og.mjs), stamped with when the post last changed.
-  assert.match(html, /<meta property="og:image" content="https:\/\/thefreecodesyndicate\.github\.io\/fcs-site\/blog\/hello-world\/og\.jpg\?v=[a-z0-9]+" \/>/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/thefreecodesubculture.github\.io\/fcs-site\/blog\/hello-world\/og\.jpg\?v=[a-z0-9]+" \/>/);
   for (const tag of ['og:image:width" content="1200"', 'og:image:height" content="630"', 'og:image:type" content="image/jpeg"', 'twitter:card" content="summary_large_image"', 'article:author" content="Ada"', 'article:published_time']) {
     assert.ok(html.includes(tag), tag);
   }
   assert.notEqual(postPage({ ...post, updated_at: "2026-10-07T10:00:00Z" }).match(/og\.jpg\?v=([a-z0-9]+)/)[1], html.match(/og\.jpg\?v=([a-z0-9]+)/)[1], "an edit changes the stamp");
-  assert.match(html, /rel="canonical" href="https:\/\/thefreecodesyndicate\.github\.io\/fcs-site\/blog\/hello-world\/"/);
+  assert.match(html, /rel="canonical" href="https:\/\/thefreecodesubculture.github\.io\/fcs-site\/blog\/hello-world\/"/);
   assert.match(html, /<span class="post-authors">Ada<\/span><\/span><span class="post-meta" style="view-transition-name: vt-date-hello-world; view-transition-class: vt-text">6 October 2026 · 1 min read<\/span>/);
   assert.match(html, /<em>post<\/em>/);
   assert.match(html, /href="\.\.\/\.\.\/css\/style\.css"/);
@@ -70,7 +70,7 @@ test("the index lists posts, or says there are none", () => {
 
 test("the sitemap names the home page, the blog and each post", () => {
   const xml = sitemap([post]);
-  assert.match(xml, /<loc>https:\/\/thefreecodesyndicate\.github\.io\/fcs-site\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/thefreecodesubculture.github\.io\/fcs-site\/<\/loc>/);
   assert.match(xml, /fcs-site\/blog\/hello-world\//);
 });
 

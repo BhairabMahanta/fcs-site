@@ -22,8 +22,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import nodemailer from "npm:nodemailer@6";
 
-const SITE = "https://thefreecodesyndicate.github.io/fcs-site/";
-const ALLOWED_ORIGINS = ["http://localhost:8000", "https://thefreecodesyndicate.github.io"];
+const SITE = "https://thefreecodesubculture.github.io/fcs-site/";
+const ALLOWED_ORIGINS = ["http://localhost:8000", "https://thefreecodesubculture.github.io"];
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RESEND_AFTER_MS = 10 * 60 * 1000; // one confirm email per address and list per 10 minutes
@@ -61,7 +61,7 @@ function layout(tag: string, title: string, inner: string, footer: string) {
   <tr><td style="background:${ACCENT};border-bottom:3px solid ${INK};padding:16px 24px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
       <td width="44" valign="middle"><img src="${SITE}assets/favicon-192.png" width="36" height="36" alt="" style="display:block;border:2px solid ${INK};"></td>
-      <td valign="middle" style="font-family:${HEAD};font-size:15px;letter-spacing:0.5px;text-transform:uppercase;color:${INK};">The Free Code Syndicate</td>
+      <td valign="middle" style="font-family:${HEAD};font-size:15px;letter-spacing:0.5px;text-transform:uppercase;color:${INK};">The Free Code Subculture</td>
       <td valign="middle" align="right" style="font-family:${MONO};font-size:12px;font-weight:bold;white-space:nowrap;color:${INK};">${tag}</td>
     </tr></table>
   </td></tr>
@@ -121,7 +121,7 @@ function mailer() {
 
 async function sendMail(to: string, subject: string, html: string, text: string, unsubscribe?: string) {
   await mailer().sendMail({
-    from: { name: "The Free Code Syndicate", address: env("GMAIL_USER") },
+    from: { name: "The Free Code Subculture", address: env("GMAIL_USER") },
     to, subject, html, text,
     ...(unsubscribe ? { list: { unsubscribe: { url: unsubscribe, comment: "Unsubscribe" } } } : {}),
   });

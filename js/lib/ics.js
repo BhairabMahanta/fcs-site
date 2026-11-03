@@ -83,7 +83,7 @@ export function buildICS(events = [], { calendarName = "FCS Events", now = new D
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//The Free Code Syndicate//Events//EN",
+    "PRODID:-//The Free Code Subculture//Events//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeText(calendarName)}`,
@@ -105,7 +105,7 @@ export function buildICS(events = [], { calendarName = "FCS Events", now = new D
     }
 
     lines.push("BEGIN:VEVENT");
-    lines.push(`UID:${event.id || start.getTime()}@freecodesyndicate`);
+    lines.push(`UID:${event.id || start.getTime()}@freecodesubculture`);
     lines.push(`DTSTAMP:${dtstamp}`);
     lines.push(`DTSTART:${stamp(start)}`);
     lines.push(`DTEND:${stamp(end)}`);

@@ -28,7 +28,7 @@ function metaTag(html, keys) {
 export async function linkMeta(url) {
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; fcs-site link previews; +https://thefreecodesyndicate.github.io/fcs-site/)", Accept: "text/html" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; fcs-site link previews; +https://thefreecodesubculture.github.io/fcs-site/)", Accept: "text/html" },
       redirect: "follow",
       signal: AbortSignal.timeout(10000),
     });

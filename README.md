@@ -1,6 +1,6 @@
-# The Free Code Syndicate — website
+# The Free Code Subculture — website
 
-A static, frontend-only site for The Free Code Syndicate, with a
+A static, frontend-only site for The Free Code Subculture, with a
 Supabase-backed admin panel so a maintainer can update content without
 touching code. No build step, no framework, no bundler.
 
@@ -86,7 +86,7 @@ hidden until someone chooses otherwise.
 30-minute run. It needs one secret, set once:
 
 1. GitHub > Settings > Developer settings > Fine-grained tokens > Generate:
-   resource owner **TheFreeCodeSyndicate**, only the **fcs-site**
+   resource owner **TheFreeCodeSubculture**, only the **fcs-site**
    repository, permission **Actions: Read and write**, nothing else.
 2. Supabase > Edge Functions > Secrets: `GITHUB_DISPATCH_TOKEN` = the token.
 
@@ -162,7 +162,7 @@ pages but not redistributing or modifying the files; see
 `assets/fonts/GARET-LICENSE.txt`.
 
 Post text lives in Supabase (`blog_posts`, migration `022`). **Images**
-are committed to the public `TheFreeCodeSyndicate/fcs-assets` repository
+are committed to the public `TheFreeCodeSubculture/fcs-assets` repository
 by the `upload-asset` Edge Function and served by jsDelivr at an address
 pinned to the commit, so it never changes and never needs a cache purge.
 Only editors and admins can upload; JPG, PNG or WebP up to 2 MB (the
@@ -172,7 +172,7 @@ public and permanent, so never upload anything private. Set once:
 1. Run `supabase/migrations/022_blog_posts.sql` to `028_profile_member_link.sql`
    in the SQL editor.
 2. GitHub > Fine-grained tokens > Generate: resource owner
-   **TheFreeCodeSyndicate**, only the **fcs-assets** repository,
+   **TheFreeCodeSubculture**, only the **fcs-assets** repository,
    permission **Contents: Read and write**, nothing else.
 3. Supabase > Edge Functions > Secrets: `GITHUB_ASSETS_TOKEN` = the token.
 4. For the cover picker's **Unsplash** tab: create an app at
@@ -201,7 +201,7 @@ A feed carries only the author's ten newest stories (Medium does not paginate fe
 **Fidelity:**
 - **Lost:** code block language tags (Medium feeds emit plain `<pre>`), GitHub gists (a gist is a `<script>`, and the feed carries none), native Medium embeds, and LaTeX equations (the feed carries only the image Medium rendered).
 - **Preserved:** headings, paragraphs, blockquotes, lists, dividers, inline formatting (bold, italic, links, inline code), and third-party embeds recovered from Embedly: a YouTube video becomes a video block, and a tweet, Vimeo or CodeSandbox embed keeps its recovered address as an ordinary link.
-- **Images:** copied into `TheFreeCodeSyndicate/fcs-assets` by the `medium-import` function itself — its own copy of the same asset helpers, the same `GITHUB_ASSETS_TOKEN` and the same 2 MB sniff rules as a normal upload — and served from `cdn.jsdelivr.net`. Images larger than 2 MB, a GIF, an SVG, or images beyond the 40-image cap on one story stay hotlinked to Medium, and the import summary says so.
+- **Images:** copied into `TheFreeCodeSubculture/fcs-assets` by the `medium-import` function itself — its own copy of the same asset helpers, the same `GITHUB_ASSETS_TOKEN` and the same 2 MB sniff rules as a normal upload — and served from `cdn.jsdelivr.net`. Images larger than 2 MB, a GIF, an SVG, or images beyond the 40-image cap on one story stay hotlinked to Medium, and the import summary says so.
 
 An optional attribution paragraph ("Originally published on Medium" linked to the story URL) is ticked by default, appended at the end of the post, and can be edited or deleted. Regardless of whether attribution is included, the story's canonical address is saved in `source_url` for provenance and duplicate detection, and shown read-only under **Properties > Source**.
 
@@ -304,7 +304,7 @@ an SMTP server. Free, with no domain needed, using the club Gmail:
 2. Supabase → **Authentication → Emails → SMTP Settings** → enable custom SMTP:
    - Host `smtp.gmail.com`, port `465`
    - Username: the full Gmail address; password: the app password
-   - Sender email: the same Gmail address; sender name: `The Free Code Syndicate`
+   - Sender email: the same Gmail address; sender name: `The Free Code Subculture`
 3. Install the branded email templates (invite, reset password, password
    changed, email changed, confirm signup, magic link, change email,
    verification code). They live in `tools/email-templates.mjs`; the

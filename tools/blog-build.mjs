@@ -83,15 +83,16 @@ await draw("blog/og/blog.jpg", () => siteCard({
   section: "BLOG",
   headline: "Notes, write-ups",
   accent: "and updates",
-  line: "From the people of The Free Code Syndicate: what we built, what we read, and what broke along the way.",
+  line: "From the people of The Free Code Subculture: what we built, what we read, and what broke along the way.",
   foot: newest ? `Latest: ${newest.title}` : "New posts soon",
   latest: newest,
 }));
 await draw("blog/og/home.jpg", () => siteCard({
   headline: "The Free Code",
-  accent: "Syndicate",
+  accent: "Subculture",
   line: "A public group for free code, study, and careful work.",
-  foot: newest ? `New on the blog: ${newest.title}` : "thefreecodesyndicate.github.io",
+  foot: newest ? `New in blogs: ${newest.title}` : "thefreecodesubculture.github.io",
+  by: newest?.authors[0],
   mark: true,
 }));
 console.log(`Preview cards: ${posts.length + 2}`);

@@ -1,4 +1,4 @@
-# The Free Code Syndicate — Brand & Visual Identity System v1.0
+# The Free Code Subculture — Brand & Visual Identity System v1.0
 
 Official Brand & Visual Identity specifications based on `FCS_Branding_Guide_v1.0.pdf` (01 October 2026).
 
@@ -6,7 +6,7 @@ Official Brand & Visual Identity specifications based on `FCS_Branding_Guide_v1.
 
 ## 1. Identity Concept
 
-- **Brand:** The Free Code Syndicate (FCS)
+- **Brand:** The Free Code Subculture (FCS)
 - **Concept:** Icarus v2 — wings, sun, ascent, and free movement.
 - **Visual Proposition:**
   - **Public-first:** Readable, inspectable, and shareable rather than promotional.
@@ -51,14 +51,14 @@ Official Brand & Visual Identity specifications based on `FCS_Branding_Guide_v1.
 | **Archivo Mono** | Primary display / UI monospace | Headings, navigation labels, metadata, cards, poster typography, buttons |
 | **Latin Modern Mono** | Secondary technical / editorial monospace | Code snippets, citations, RFC labels, technical notes, data-like content, diagrams |
 | **Garet Variations** | Primary Digital / Social Media font | Designer compositions, social templates, creative display |
-| **Run** | Logotype font | Master wordmark typography ("the freecode syndicate") |
+| **Run** | Logotype font | Master wordmark typography ("the freecode subculture") |
 
 ---
 
 ## 4. Logo Assets & Inventory
 
 - **`assets/logoicon.svg`**: Master vector SVG of the Icarus mark (wings + sun). Use where space is constrained, in the sticky navigation, avatars, and favicons.
-- **`assets/fcs-lockup.png`**: High-resolution transparent raster master lockup (Icarus wings + sun + "the freecode syndicate" wordmark).
+- **`assets/fcs-lockup.png`**: High-resolution transparent raster master lockup (Icarus wings + sun + "the freecode subculture" wordmark).
 - **`assets/logoWtype2.svg`**: Canonical stacked vector lock-up.
 - **`assets/logoWtype.svg`**: Canonical horizontal vector lock-up.
 - **`assets/InkScapeDesignBoard.svg`**: Master Inkscape multi-board vector source.

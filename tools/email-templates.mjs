@@ -10,7 +10,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const PROJECT_REF = "odkpecmcvzjakeavaqcf";
-const SITE = "https://thefreecodesyndicate.github.io/fcs-site/";
+const SITE = "https://thefreecodesubculture.github.io/fcs-site/";
 const LOGO = `${SITE}assets/favicon-192.png`;
 
 const INK = "#000000";
@@ -74,7 +74,7 @@ function layout({ preheader, tag, title, body, why }) {
           <tr><td style="background:${ACCENT};border-bottom:3px solid ${INK};padding:16px 24px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
               <td width="44" valign="middle"><img src="${LOGO}" width="36" height="36" alt="" style="display:block;border:2px solid ${INK};"></td>
-              <td valign="middle" style="font-family:${HEAD};font-size:15px;letter-spacing:0.5px;text-transform:uppercase;color:${INK};">The Free Code Syndicate</td>
+              <td valign="middle" style="font-family:${HEAD};font-size:15px;letter-spacing:0.5px;text-transform:uppercase;color:${INK};">The Free Code Subculture</td>
               <td valign="middle" align="right" style="font-family:${MONO};font-size:12px;font-weight:bold;white-space:nowrap;color:${INK};">${tag}</td>
             </tr></table>
           </td></tr>
@@ -84,7 +84,7 @@ function layout({ preheader, tag, title, body, why }) {
           </td></tr>
           <tr><td style="border-top:3px solid ${INK};padding:16px 28px;font-family:${MONO};font-size:12px;line-height:1.6;color:${MUTED};">
             ${why}<br>
-            <a href="${SITE}" style="color:${INK};font-weight:bold;">thefreecodesyndicate.github.io/fcs-site</a>
+            <a href="${SITE}" style="color:${INK};font-weight:bold;">thefreecodesubculture.github.io/fcs-site</a>
           </td></tr>
         </table>
       </td></tr>
@@ -109,7 +109,7 @@ const TEMPLATES = [
     tag: "// INVITE",
     title: "You're invited to the admin panel",
     body:
-      p(`{{ if .Data.invited_by }}<strong>{{ .Data.invited_by }}</strong> has{{ else }}You've been{{ end }} invited you to help run The Free Code Syndicate's website as <strong style="background:${ACCENT};padding:1px 6px;border:2px solid ${INK};">${ROLE}</strong>.`) +
+      p(`{{ if .Data.invited_by }}<strong>{{ .Data.invited_by }}</strong> has{{ else }}You've been{{ end }} invited you to help run The Free Code Subculture's website as <strong style="background:${ACCENT};padding:1px 6px;border:2px solid ${INK};">${ROLE}</strong>.`) +
       p(`{{ if eq .Data.invited_role "admin" }}Admins edit everything on the site, delete and restore content, and manage who else has access.{{ else }}Editors add and update events, the class schedule, core members, study groups, resources and links.{{ end }}`) +
       steps([
         "<strong>Accept the invite</strong> with the button below.",
@@ -214,7 +214,8 @@ const TEMPLATES = [
 ];
 
 mkdirSync("supabase/email", { recursive: true });
-const config = {};
+// Sender name and Site URL ride along, so a rebrand is one push.
+const config = { smtp_sender_name: "The Free Code Subculture", site_url: SITE };
 for (const t of TEMPLATES) {
   const html = layout(t);
   writeFileSync(`supabase/email/${t.key}.html`, html);
