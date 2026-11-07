@@ -2973,7 +2973,22 @@ a.status-active:focus-visible,
    Same rules as the rest of the site: square cards, 3px borders,
    hard shadows and one yellow action.
    ================================================================ */
-.profile-page-body { background: var(--paper); }
+.profile-page-body { background: var(--paper); position: relative; }
+
+.profile-pixel-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.profile-page {
+  position: relative;
+  z-index: 1;
+}
 
 .account-nav {
   position: sticky;
@@ -3090,6 +3105,55 @@ a.status-active:focus-visible,
   margin-top: 8px;
   padding-top: 14px;
   border-top: 2px solid var(--rule);
+}
+
+.profile-preference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding-top: 12px;
+  border-top: 2px solid var(--rule);
+  text-align: left;
+}
+
+.profile-preference strong {
+  display: block;
+  font-size: 0.8rem;
+}
+
+.profile-preference span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.profile-switch {
+  min-width: 64px;
+  padding: 6px 10px;
+  border: 2px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-switch.is-on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.profile-switch:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.profile-switch:disabled {
+  opacity: 0.6;
+  cursor: progress;
 }
 
 .profile-edit { align-content: start; }

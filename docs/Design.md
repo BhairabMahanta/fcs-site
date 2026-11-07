@@ -56,6 +56,7 @@ fcs-site/
 │   ├── auth.js         — Login/signup dialog and member nav state
 │   ├── session-init.js — Early session paint before modules load
 │   ├── profile.js      — Member profile page and avatar upload
+│   ├── lib/pixel-field.js — Shared pixel background for admin and profile
 │   ├── blog-editor.js  — Full-screen block editor
 │   ├── supabase.js     — All database calls (one function per operation)
 │   ├── render.js       — Shared card/component HTML builders

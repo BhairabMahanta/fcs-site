@@ -237,6 +237,13 @@ export async function updateProfile(patch) {
   });
 }
 
+export async function updateEmailPreferences(emailUpdates) {
+  return api("/api/account/email-preferences", {
+    method: "PATCH",
+    body: { emailUpdates },
+  });
+}
+
 export async function uploadMyAvatar(file) {
   const body = new FormData();
   body.append("file", file);

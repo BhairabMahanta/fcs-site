@@ -8,7 +8,7 @@ export const accountRouter = Router();
 
 const avatarUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024, files: 1 },
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
 });
 
 accountRouter.use(requireAuth, requireVerified);

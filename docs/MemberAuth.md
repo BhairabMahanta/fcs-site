@@ -19,7 +19,7 @@ password-reset emails still enter through the homepage dialog.
 - Logged in: circular avatar + “Profile” (the label is visually hidden on
   desktop and shown in the mobile menu).
 - The avatar is the member's saved photo, or coloured initials from
-  `avatarHTML()` in `js/lib/blog-pages.js`.
+  `avatarHTML()` in `js/lib/avatar.js`.
 - Clicking it while signed out opens the dialog; while signed in it goes to
   `account.html`.
 
@@ -69,12 +69,19 @@ The edit form updates:
 - Website URL
 - GitHub username
 
-There is no public directory, badge or leaderboard on this page.
+The account page also has an event-email switch backed by
+`PATCH /api/account/email-preferences`.
+
+There is no public directory, badge or leaderboard on this page. The
+background is the same quiet pixel field used behind the admin gate, shared
+through `js/lib/pixel-field.js`.
 
 ## Avatar upload
 
 - `POST /api/account/avatar` accepts one image in the `file` field.
-- JPG, PNG or WebP; maximum 2 MB.
+- JPG, PNG or WebP; maximum 10 MB.
+- The browser crops to a square, resizes to 512 px and encodes WebP before
+  uploading, so the saved avatar and nav icon stay small.
 - Files are stored under `MEDIA_DIR/members/avatars/` and served from
   `/media/members/avatars/<file>`.
 - Replacing an avatar deletes the previous local file.
@@ -121,7 +128,9 @@ enforces every role check.
 - `account.html` — member profile page
 - `css/style.css` — nav control, dialog, forms, profile page and avatars
 - `js/auth.js` — login/signup state machine, hash handling and nav state
-- `js/profile.js` — profile page editing and avatar upload/removal
+- `js/profile.js` — profile page editing, avatar compression and upload
+- `js/lib/avatar.js` — shared avatar renderer
+- `js/lib/pixel-field.js` — shared pixel background used by the admin gate and profile page
 - `js/api.js` — signUp, verifyEmail, resendVerification, profile and avatar calls
 - `backend/src/services/auth.service.ts` — verification/reset link targets
 - `backend/src/routes/account.routes.ts` — profile and avatar endpoints
