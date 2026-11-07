@@ -1,13 +1,17 @@
 import { createApp } from "./app.js";
 import { config } from "./config.js";
 import { pool } from "./db/index.js";
+import { logger } from "./lib/logger.js";
 
 const app = createApp();
 
 const server = app.listen(config.PORT, config.HOST, () => {
-  console.log(
-    `fcs-backend listening on http://${config.HOST}:${config.PORT} (${config.NODE_ENV})`,
+  logger.info(
+    { host: config.HOST, port: config.PORT, env: config.NODE_ENV },
+    "fcs-backend listening",
   );
+  // PM2 waits for this when ecosystem.config.cjs sets wait_ready.
+  process.send?.("ready");
 });
 
 async function cleanupAnalytics() {
@@ -21,7 +25,7 @@ async function cleanupAnalytics() {
 // One process is deployed, so a simple timer is enough for retention.
 const analyticsCleanupTimer = setInterval(() => {
   cleanupAnalytics().catch((error) => {
-    console.error("Analytics cleanup failed", error);
+    logger.error({ err: error }, "Analytics cleanup failed");
   });
 }, 6 * 60 * 60 * 1000);
 analyticsCleanupTimer.unref();
@@ -31,10 +35,10 @@ let shuttingDown = false;
 async function shutdown(signal: string) {
   if (shuttingDown) return;
   shuttingDown = true;
-  console.log(`${signal} received, shutting down`);
+  logger.info({ signal }, "Shutting down");
 
   const forceExit = setTimeout(() => {
-    console.error("Graceful shutdown timed out");
+    logger.error("Graceful shutdown timed out");
     process.exit(1);
   }, 10_000);
   forceExit.unref();
@@ -43,7 +47,7 @@ async function shutdown(signal: string) {
     try {
       await pool.end();
     } catch (error) {
-      console.error("Error closing database pool", error);
+      logger.error({ err: error }, "Error closing database pool");
     }
     clearTimeout(forceExit);
     process.exit(0);

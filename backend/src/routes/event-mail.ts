@@ -5,6 +5,7 @@ import { withActor } from "../db/tx.js";
 import { config } from "../config.js";
 import { requireAdmin } from "../middleware/auth.js";
 import { HttpError, asyncHandler, parseBody } from "../lib/http.js";
+import { logger } from "../lib/logger.js";
 import { isMailConfigured, sendMail } from "../services/mailer.js";
 import {
   eventUpdateEmail,
@@ -179,7 +180,7 @@ async function subscribe(body: z.infer<typeof SubscribeSchema>) {
     } else {
       await pool.query("delete from subscriptions where token = $1", [token]);
     }
-    console.error("Could not send the subscription confirmation", error);
+    logger.error({ err: error }, "Could not send the subscription confirmation");
     throw new HttpError(502, "Could not send the confirmation email. Try again in a minute.");
   }
 
@@ -401,7 +402,7 @@ adminMailRouter.post(
         sent++;
       } catch (error) {
         failed++;
-        console.error("Event update send failed", error);
+        logger.error({ err: error }, "Event update send failed");
       }
     }
 

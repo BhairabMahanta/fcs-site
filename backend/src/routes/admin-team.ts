@@ -5,6 +5,7 @@ import { withActor } from "../db/tx.js";
 import { config } from "../config.js";
 import { requireAdmin } from "../middleware/auth.js";
 import { HttpError, asyncHandler, parseBody } from "../lib/http.js";
+import { logger } from "../lib/logger.js";
 import { createOpaqueToken } from "../lib/tokens.js";
 import { isMailConfigured, sendMail } from "../services/mailer.js";
 import { inviteEmail, testEmail } from "../email/templates.js";
@@ -166,7 +167,7 @@ adminTeamRouter.post(
         emailed = true;
       } catch (error) {
         emailError = error instanceof Error ? error.message : "Could not send the invite email.";
-        console.error("Could not send the invite email", error);
+        logger.error({ err: error }, "Could not send the invite email");
       }
     }
 

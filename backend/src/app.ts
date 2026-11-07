@@ -5,6 +5,7 @@ import { pinoHttp } from "pino-http";
 import { config } from "./config.js";
 import { pingDatabase } from "./db/index.js";
 import { HttpError } from "./lib/http.js";
+import { logger } from "./lib/logger.js";
 import { adminAnalyticsRouter } from "./routes/admin-analytics.js";
 import { adminBlogRouter } from "./routes/admin-blog.js";
 import { adminGithubRouter } from "./routes/admin-github.js";
@@ -35,7 +36,25 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(
     pinoHttp({
-      level: config.isTest ? "silent" : config.isProduction ? "info" : "debug",
+      logger,
+      // Keep request logs small and avoid dumping headers by default.
+      // Authentication and address headers are additionally redacted in
+      // logger.ts as a second line of defence.
+      serializers: {
+        req(req) {
+          return {
+            id: req.id,
+            method: req.method,
+            url: req.url,
+            query: req.query,
+            remoteAddress: req.remoteAddress,
+            remotePort: req.remotePort,
+          };
+        },
+        res(res) {
+          return { statusCode: res.statusCode };
+        },
+      },
     }),
   );
 
@@ -47,12 +66,12 @@ export function createApp() {
     });
   });
 
-  app.get("/health", async (_req, res) => {
+  app.get("/health", async (req, res) => {
     try {
       const db = await pingDatabase();
       res.json({ ok: true, db: "up", time: db.now });
     } catch (error) {
-      console.error("Database health check failed", error);
+      req.log.error({ err: error }, "Database health check failed");
       res.status(503).json({ ok: false, db: "down" });
     }
   });
@@ -75,7 +94,7 @@ export function createApp() {
     res.status(404).json({ error: "Not found" });
   });
 
-  const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+  const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
     if (error instanceof HttpError) {
       res.status(error.status).json({ error: error.message });
       return;
@@ -103,7 +122,7 @@ export function createApp() {
       return;
     }
 
-    console.error("Unhandled API error", error);
+    req.log.error({ err: error }, "Unhandled API error");
     res.status(500).json({ error: "Internal server error" });
   };
 

@@ -3,6 +3,7 @@ import express, { Router } from "express";
 import { config } from "../config.js";
 import { pool } from "../db/index.js";
 import { asyncHandler } from "../lib/http.js";
+import { logger } from "../lib/logger.js";
 
 export const trackRouter = Router();
 
@@ -111,7 +112,7 @@ trackRouter.post(
         );
       }
     } catch (error) {
-      console.error("Analytics beacon failed", error);
+      logger.error({ err: error }, "Analytics beacon failed");
     }
 
     return done();
