@@ -113,6 +113,21 @@ TEST_DATABASE_URL=postgres://.../fcs_test npm test
 The integration suite truncates every application table, so never point it
 at production.
 
+## Migrations
+
+`migrations/` is the schema history, not a one-time setup script. Keep every
+applied migration in the repository.
+
+- The runner records each file in `schema_migrations` and prints `skip` for
+  files that are already applied.
+- Running `npm run db:migrate` again is safe; it does not reapply those files.
+- Never edit or delete an applied migration. Add a new numbered file for every
+  schema change.
+- CI runs the migrations against a fresh PostgreSQL service, and a new VPS or
+  disaster-recovery install needs them too.
+- If a feature's schema must be removed, write a new drop migration. Do not
+  delete the original migration from history.
+
 ## Routes
 
 - `/health` — database health.
