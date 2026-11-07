@@ -17,10 +17,14 @@ concurrency:
 
 jobs:
   ci:
+    # Only the canonical organisation repository has the production
+    # self-hosted runner and environment. Forks should not queue a deploy.
+    if: github.repository == 'TheFreeCodeSubculture/fcs-site'
     uses: ./.github/workflows/ci.yml
 
   deploy:
     name: Deploy to VPS
+    if: github.repository == 'TheFreeCodeSubculture/fcs-site'
     needs: ci
     runs-on: [self-hosted, linux, x64, fcs-deploy]
     environment: production

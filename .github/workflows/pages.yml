@@ -29,6 +29,9 @@ concurrency:
 
 jobs:
   deploy:
+    # Forks may run tests, but only the canonical organisation repository
+    # may publish the production site.
+    if: github.repository == 'TheFreeCodeSubculture/fcs-site'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
