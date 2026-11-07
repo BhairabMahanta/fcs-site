@@ -165,8 +165,8 @@ applied migration in the repository.
 - `/health` — database health.
 - `/api/auth/*` — member signup, email verification, login, refresh, logout,
   me, password reset and invite accept.
-- `/api/account/*` — member profile editing and the all-events email
-  preference; requires a verified account.
+- `/api/account/*` — member profile editing, avatar upload/removal and the
+  all-events email preference; requires a verified account.
 - `/api/public/*` — published events, classes, resources, groups, links,
   opted-in member profiles, repositories and blog posts.
 - `/api/admin/*` — CRUD for every content table, team and role management,
@@ -193,18 +193,18 @@ backend routes are ready for the frontend developer:
 Verification emails currently link to:
 
 ```text
-${PUBLIC_SITE_URL}/account.html#verify=<token>
+${PUBLIC_SITE_URL}/#verify=<token>
 ```
 
 Member password-reset emails currently link to:
 
 ```text
-${PUBLIC_SITE_URL}/account.html#type=recovery&token=<token>
+${PUBLIC_SITE_URL}/#type=recovery&token=<token>
 ```
 
-The frontend must provide that page, or the paths in
-`src/services/auth.service.ts` must be changed to the route the frontend
-implements.
+Admin and editor reset emails still link to `admin.html`. The homepage
+handles both member links in the auth dialog; successful verification or
+password reset lands on `account.html`, the member profile page.
 
 ## Production and deploy
 

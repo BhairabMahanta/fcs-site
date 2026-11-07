@@ -88,7 +88,7 @@ async function sendVerification(
     [user.id, token.hash, expiresAt],
   );
 
-  const url = `${accountSite}/account.html#verify=${token.raw}`;
+  const url = `${accountSite}/#verify=${token.raw}`;
 
   if (!isMailConfigured()) {
     if (config.isProduction) {
@@ -413,8 +413,9 @@ export async function forgotPassword(email: string) {
     [user.id, token.hash, expiresAt],
   );
 
-  const page = user.role === "member" ? "account.html" : "admin.html";
-  const resetUrl = `${accountSite}/${page}#type=recovery&token=${token.raw}`;
+  const resetUrl = user.role === "member"
+    ? `${accountSite}/#type=recovery&token=${token.raw}`
+    : `${accountSite}/admin.html#type=recovery&token=${token.raw}`;
 
   if (isMailConfigured()) {
     try {

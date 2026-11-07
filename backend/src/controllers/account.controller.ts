@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { parseBody } from "../lib/http.js";
+import { HttpError, parseBody } from "../lib/http.js";
 import * as accountService from "../services/account.service.js";
 
 const optionalHttpURL = (label: string) =>
@@ -73,5 +73,17 @@ export const accountController = {
     res.json(
       await accountService.updateEmailPreferences(req.user!, body.emailUpdates),
     );
+  },
+
+  async uploadAvatar(req: Request, res: Response) {
+    const file = req.file;
+    if (!file) {
+      throw new HttpError(400, "Send an image in the `file` field.");
+    }
+    res.json(await accountService.setAvatar(req.user!, file.buffer));
+  },
+
+  async removeAvatar(req: Request, res: Response) {
+    res.json(await accountService.clearAvatar(req.user!));
   },
 };

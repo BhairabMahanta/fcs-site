@@ -2,6 +2,7 @@ import { pool } from "../db/index.js";
 import { withActor } from "../db/tx.js";
 import { HttpError } from "../lib/http.js";
 import type { AuthUser } from "../types.js";
+import { deleteMemberAvatarFile, saveMemberAvatar } from "./media.service.js";
 
 export interface ProfileInput {
   display_name?: string;
@@ -101,4 +102,66 @@ export async function updateEmailPreferences(
   });
 
   return { emailUpdates: enabled };
+}
+
+export async function setAvatar(
+  actor: Pick<AuthUser, "id" | "email">,
+  image: Buffer,
+): Promise<AccountProfile> {
+  const saved = await saveMemberAvatar(image);
+
+  try {
+    const result = await withActor(actor, async (client) => {
+      const current = await client.query<{ avatar_url: string | null }>(
+        "select avatar_url from profiles where id = $1 for update",
+        [actor.id],
+      );
+      if (!current.rows[0]) {
+        throw new HttpError(404, "That account does not exist.");
+      }
+
+      const updated = await client.query<AccountProfile>(
+        `update profiles
+            set avatar_url = $1
+          where id = $2
+          returning ${PROFILE_COLUMNS}`,
+        [saved.url, actor.id],
+      );
+
+      return { profile: updated.rows[0], oldAvatar: current.rows[0].avatar_url };
+    });
+
+    await deleteMemberAvatarFile(result.oldAvatar).catch(() => undefined);
+    return result.profile;
+  } catch (error) {
+    await deleteMemberAvatarFile(saved.url).catch(() => undefined);
+    throw error;
+  }
+}
+
+export async function clearAvatar(
+  actor: Pick<AuthUser, "id" | "email">,
+): Promise<AccountProfile> {
+  const result = await withActor(actor, async (client) => {
+    const current = await client.query<{ avatar_url: string | null }>(
+      "select avatar_url from profiles where id = $1 for update",
+      [actor.id],
+    );
+    if (!current.rows[0]) {
+      throw new HttpError(404, "That account does not exist.");
+    }
+
+    const updated = await client.query<AccountProfile>(
+      `update profiles
+          set avatar_url = null
+        where id = $1
+        returning ${PROFILE_COLUMNS}`,
+      [actor.id],
+    );
+
+    return { profile: updated.rows[0], oldAvatar: current.rows[0].avatar_url };
+  });
+
+  await deleteMemberAvatarFile(result.oldAvatar).catch(() => undefined);
+  return result.profile;
 }

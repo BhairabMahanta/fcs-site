@@ -6,9 +6,39 @@ import { HttpError } from "../lib/http.js";
 import { IMAGE_EXTENSION, sniffImageType } from "../lib/image.js";
 
 const mediaRoot = join(config.MEDIA_DIR, "members");
+const avatarRoot = join(mediaRoot, "avatars");
 
 function publicURL(file: string): string {
   return `${config.PUBLIC_API_URL.replace(/\/$/, "")}/media/members/${file}`;
+}
+
+function avatarURL(file: string): string {
+  return `${config.PUBLIC_API_URL.replace(/\/$/, "")}/media/members/avatars/${file}`;
+}
+
+export async function saveMemberAvatar(image: Buffer) {
+  const type = sniffImageType(image);
+  if (!type) {
+    throw new HttpError(400, "Use a JPG, PNG or WebP image.");
+  }
+
+  await mkdir(avatarRoot, { recursive: true });
+
+  const file = `${randomUUID()}.${IMAGE_EXTENSION[type]}`;
+  await writeFile(join(avatarRoot, file), image, { mode: 0o644 });
+
+  return { file, url: avatarURL(file) };
+}
+
+export async function deleteMemberAvatarFile(url: string | null | undefined) {
+  if (!url) return;
+  const prefix = `${config.PUBLIC_API_URL.replace(/\/$/, "")}/media/members/avatars/`;
+  if (!url.startsWith(prefix)) return;
+
+  const file = basename(decodeURIComponent(url.slice(prefix.length)));
+  await unlink(join(avatarRoot, file)).catch((error: NodeJS.ErrnoException) => {
+    if (error.code !== "ENOENT") throw error;
+  });
 }
 
 export async function saveMemberPhotos(full: Buffer, thumb: Buffer) {
