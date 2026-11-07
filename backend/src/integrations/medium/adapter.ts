@@ -1,12 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { Router } from "express";
-import { config } from "../config.js";
-import { requireEditor } from "../middleware/auth.js";
-import { HttpError, asyncHandler } from "../lib/http.js";
-import { MAX_BYTES, REPO } from "../integrations/medium/asset.js";
-import { handleAction } from "../integrations/medium/importer.js";
-
-export const integrationsRouter = Router();
+import { config } from "../../config.js";
+import { HttpError } from "../../lib/http.js";
+import { MAX_BYTES, REPO } from "./asset.js";
+import { handleAction } from "./importer.js";
 
 const UA = "Mozilla/5.0 (compatible; fcs-site/1.0)";
 
@@ -57,7 +53,9 @@ async function putAsset(bytes: Uint8Array, _ext: string, path: string) {
   );
 
   if (response.status !== 201) {
-    throw new Error(`GitHub PUT failed ${response.status}: ${(await response.text()).slice(0, 160)}`);
+    throw new Error(
+      `GitHub PUT failed ${response.status}: ${(await response.text()).slice(0, 160)}`,
+    );
   }
 
   const data = (await response.json()) as { commit?: { sha?: string } };
@@ -65,28 +63,21 @@ async function putAsset(bytes: Uint8Array, _ext: string, path: string) {
   return { sha: data.commit.sha, path };
 }
 
-integrationsRouter.post(
-  "/medium",
-  requireEditor,
-  asyncHandler(async (req, res) => {
-    const action = req.body?.action;
-    if (action === "import" && !config.GITHUB_ASSETS_TOKEN) {
-      throw new HttpError(501, "Image upload is not configured: set GITHUB_ASSETS_TOKEN.");
-    }
+export async function runMediumAction(body: Record<string, unknown>) {
+  if (body?.action === "import" && !config.GITHUB_ASSETS_TOKEN) {
+    throw new HttpError(
+      501,
+      "Image upload is not configured: set GITHUB_ASSETS_TOKEN.",
+    );
+  }
 
-    const result = await handleAction(req.body, {
-      fetchText,
-      fetchBytes,
-      putAsset,
-      limit: 40,
-      maxBytes: MAX_BYTES,
-      now: new Date(),
-      newID: () => randomUUID(),
-    });
-
-    if (action === "import") {
-      res.setHeader("cache-control", "no-store");
-    }
-    res.status(result.status).json(result.body);
-  }),
-);
+  return handleAction(body as Parameters<typeof handleAction>[0], {
+    fetchText,
+    fetchBytes,
+    putAsset,
+    limit: 40,
+    maxBytes: MAX_BYTES,
+    now: new Date(),
+    newID: () => randomUUID(),
+  });
+}

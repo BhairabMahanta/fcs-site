@@ -7,8 +7,9 @@ export default tseslint.config(
       "dist/**",
       "node_modules/**",
       "coverage/**",
-      // Copied from the tested Medium importer; covered by the frontend tests.
-      "src/integrations/medium/**",
+      // Copied from the tested Medium importer; the .js files are covered by
+      // the frontend tests. The TypeScript adapter next to them is linted.
+      "src/integrations/medium/*.js",
     ],
   },
   js.configs.recommended,
