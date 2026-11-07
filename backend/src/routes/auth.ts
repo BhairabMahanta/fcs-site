@@ -6,6 +6,7 @@ import { withActor } from "../db/tx.js";
 import { config } from "../config.js";
 import { requireAuth } from "../middleware/auth.js";
 import { HttpError, asyncHandler, parseBody } from "../lib/http.js";
+import { logger } from "../lib/logger.js";
 import { hashPassword, verifyPassword } from "../lib/password.js";
 import {
   createOpaqueToken,
@@ -122,7 +123,7 @@ async function sendVerification(user: VerificationUser): Promise<string | undefi
     if (config.isProduction) {
       throw new HttpError(503, "Email verification is not configured yet.");
     }
-    console.info(`Email verification for ${user.email}: ${url}`);
+    logger.info({ email: user.email, url }, "Email verification link (development)");
     return url;
   }
 
@@ -229,7 +230,7 @@ authRouter.post(
     try {
       verifyUrl = await sendVerification(user);
     } catch (error) {
-      console.error("Could not send the verification email", error);
+      logger.error({ err: error }, "Could not send the verification email");
       throw new HttpError(502, "Your account was created, but the verification email could not be sent. Request a new link from the sign-in page.");
     }
 
@@ -330,7 +331,7 @@ authRouter.post(
     try {
       verifyUrl = await sendVerification(user);
     } catch (error) {
-      console.error("Could not resend the verification email", error);
+      logger.error({ err: error }, "Could not resend the verification email");
       throw new HttpError(502, "Could not send the verification email. Try again in a minute.");
     }
 
@@ -496,11 +497,11 @@ authRouter.post(
         const email = resetEmail(user.display_name || user.email, resetUrl);
         await sendMail({ to: user.email, ...email });
       } catch (error) {
-        console.error("Could not send the password-reset email", error);
+        logger.error({ err: error }, "Could not send the password-reset email");
       }
-    } else {
+    } else if (!config.isProduction) {
       // Development fallback: no email credentials, so expose the link.
-      console.info(`Password reset for ${body.email}: ${resetUrl}`);
+      logger.info({ email: body.email, resetUrl }, "Password reset link (development)");
     }
 
     if (config.isProduction) {

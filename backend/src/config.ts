@@ -14,6 +14,9 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   HOST: z.string().default("127.0.0.1"),
   PORT: z.coerce.number().int().positive().max(65535).default(5050),
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
+    .default("info"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   SITE_ORIGINS: z
     .string()

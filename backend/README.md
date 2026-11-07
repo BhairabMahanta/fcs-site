@@ -44,6 +44,7 @@ that is `http://localhost:8000` (not `127.0.0.1`).
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string |
+| `LOG_LEVEL` | `fatal`, `error`, `warn`, `info`, `debug`, `trace` or `silent` |
 | `JWT_SECRET` | signs short-lived access tokens |
 | `REFRESH_TOKEN_PEPPER` | hashes refresh tokens in the database |
 | `SITE_ORIGINS` | comma-separated browser origins allowed by CORS |
@@ -57,6 +58,38 @@ that is `http://localhost:8000` (not `127.0.0.1`).
 
 Production reads `/srv/fcs-api/shared/.env` (mode `600`, owned by `fcs`).
 `FCS_ENV_FILE` points at it; nothing secret is committed.
+
+## Logging
+
+The app writes structured JSON with Pino to stdout. PM2 captures it in:
+
+```text
+/srv/fcs-api/shared/logs/out.log
+/srv/fcs-api/shared/logs/error.log
+```
+
+`LOG_LEVEL` controls the level. Tests run at `silent`.
+
+Request logs redact:
+
+- `Authorization` and cookie headers
+- API keys
+- forwarded client IP headers (`x-real-ip`, `x-forwarded-for`, `cf-connecting-ip`)
+- password, token and refresh-token fields
+- `Set-Cookie` response headers
+
+`pm2-logrotate` is configured for 10 MB files, 14 days of retention, gzip
+compression and a daily rotation. The PM2 process uses `wait_ready`, a 10-second
+listen timeout and a 10-second kill timeout, so reloads wait for the app to bind
+before the health check runs.
+
+Useful commands:
+
+```bash
+sudo -u fcs -H pm2 logs fcs-backend --lines 100
+sudo -u fcs -H pm2 describe fcs-backend
+sudo -u fcs -H pm2 conf pm2-logrotate
+```
 
 ## Checks
 
