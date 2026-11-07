@@ -190,6 +190,63 @@ export async function signIn(email, password) {
   return data.user;
 }
 
+/** Create a member account. The account still needs email verification. */
+export async function signUp({
+  email,
+  password,
+  displayName,
+  directoryOptIn = false,
+  emailUpdates = true,
+  company = "",
+} = {}) {
+  return api("/api/auth/signup", {
+    method: "POST",
+    auth: false,
+    body: { email, password, displayName, directoryOptIn, emailUpdates, company },
+  });
+}
+
+/** Verify an emailed token and sign the member in. */
+export async function verifyEmail(token) {
+  const data = await api("/api/auth/verify-email", {
+    method: "POST",
+    auth: false,
+    body: { token },
+  });
+  saveSession(data);
+  return data.user;
+}
+
+export async function resendVerification(email) {
+  return api("/api/auth/resend-verification", {
+    method: "POST",
+    auth: false,
+    body: { email },
+  });
+}
+
+/** The private profile view: email, bio, avatar and join date. */
+export async function getProfile() {
+  return api("/api/account/profile");
+}
+
+export async function updateProfile(patch) {
+  return api("/api/account/profile", {
+    method: "PATCH",
+    body: patch,
+  });
+}
+
+export async function uploadMyAvatar(file) {
+  const body = new FormData();
+  body.append("file", file);
+  return api("/api/account/avatar", { method: "POST", body });
+}
+
+export async function removeMyAvatar() {
+  return api("/api/account/avatar", { method: "DELETE" });
+}
+
 export async function signOut() {
   const current = loadSession();
   try {
@@ -208,7 +265,7 @@ export async function signOut() {
 }
 
 export async function requestPasswordReset(email, _redirectTo) {
-  await api("/api/auth/forgot-password", {
+  return api("/api/auth/forgot-password", {
     method: "POST",
     auth: false,
     body: { email },

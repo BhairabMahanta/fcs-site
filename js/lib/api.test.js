@@ -63,6 +63,186 @@ test("sign in stores the session and user", async () => {
   assert.equal(api.isConfigured(), true);
 });
 
+test("sign up posts the member fields without creating a session", async () => {
+  installBrowser();
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ ok: true });
+  };
+
+  const api = await load();
+  await api.signUp({
+    email: "member@example.com",
+    password: "member-password-123",
+    displayName: "Test Member",
+    emailUpdates: true,
+  });
+
+  assert.equal(request.url, "https://api.test/api/auth/signup");
+  assert.equal(request.options.method, "POST");
+  assert.equal(request.options.headers.authorization, undefined);
+  assert.deepEqual(JSON.parse(request.options.body), {
+    email: "member@example.com",
+    password: "member-password-123",
+    displayName: "Test Member",
+    directoryOptIn: false,
+    emailUpdates: true,
+    company: "",
+  });
+  assert.equal(await api.getSession(), null);
+});
+
+test("verifying an email stores the returned session", async () => {
+  installBrowser();
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({
+      accessToken: "access",
+      refreshToken: "refresh",
+      user: { id: "u1", email: "member@example.com", role: "member" },
+    });
+  };
+
+  const api = await load();
+  const user = await api.verifyEmail("verify-token");
+
+  assert.equal(request.url, "https://api.test/api/auth/verify-email");
+  assert.deepEqual(JSON.parse(request.options.body), { token: "verify-token" });
+  assert.equal(user.role, "member");
+  assert.equal((await api.getSession()).user.id, "u1");
+});
+
+test("resend verification asks the API", async () => {
+  installBrowser();
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ ok: true });
+  };
+
+  const api = await load();
+  await api.resendVerification("member@example.com");
+
+  assert.equal(request.url, "https://api.test/api/auth/resend-verification");
+  assert.deepEqual(JSON.parse(request.options.body), {
+    email: "member@example.com",
+  });
+});
+
+test("profile requests send the session token", async () => {
+  installBrowser();
+  memory.set(
+    "fcs-api-session",
+    JSON.stringify({
+      accessToken: "access",
+      refreshToken: "refresh",
+      user: { id: "u1", email: "member@example.com", role: "member" },
+    }),
+  );
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ id: "u1", display_name: "Test Member" });
+  };
+
+  const api = await load();
+  const profile = await api.getProfile();
+
+  assert.equal(request.url, "https://api.test/api/account/profile");
+  assert.equal(request.options.headers.authorization, "Bearer access");
+  assert.equal(profile.display_name, "Test Member");
+});
+
+test("profile updates patch the supplied fields", async () => {
+  installBrowser();
+  memory.set(
+    "fcs-api-session",
+    JSON.stringify({
+      accessToken: "access",
+      refreshToken: "refresh",
+      user: { id: "u1", email: "member@example.com", role: "member" },
+    }),
+  );
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ id: "u1", display_name: "New Name" });
+  };
+
+  const api = await load();
+  const profile = await api.updateProfile({ display_name: "New Name", bio: "Hello" });
+
+  assert.equal(request.url, "https://api.test/api/account/profile");
+  assert.equal(request.options.method, "PATCH");
+  assert.equal(request.options.headers.authorization, "Bearer access");
+  assert.deepEqual(JSON.parse(request.options.body), {
+    display_name: "New Name",
+    bio: "Hello",
+  });
+  assert.equal(profile.display_name, "New Name");
+});
+
+test("avatar upload sends the file as multipart form data", async () => {
+  installBrowser();
+  memory.set(
+    "fcs-api-session",
+    JSON.stringify({
+      accessToken: "access",
+      refreshToken: "refresh",
+      user: { id: "u1", email: "member@example.com", role: "member" },
+    }),
+  );
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ id: "u1", avatar_url: "https://api.test/media/members/avatars/a.png" });
+  };
+
+  const api = await load();
+  const file = new Blob(["png"], { type: "image/png" });
+  const profile = await api.uploadMyAvatar(file);
+
+  assert.equal(request.url, "https://api.test/api/account/avatar");
+  assert.equal(request.options.method, "POST");
+  assert.equal(request.options.headers.authorization, "Bearer access");
+  assert.ok(request.options.body instanceof FormData);
+  assert.equal(request.options.body.get("file").type, "image/png");
+  assert.equal(profile.avatar_url, "https://api.test/media/members/avatars/a.png");
+});
+
+test("removing an avatar sends a DELETE request", async () => {
+  installBrowser();
+  memory.set(
+    "fcs-api-session",
+    JSON.stringify({
+      accessToken: "access",
+      refreshToken: "refresh",
+      user: { id: "u1", email: "member@example.com", role: "member" },
+    }),
+  );
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ id: "u1", avatar_url: null });
+  };
+
+  const api = await load();
+  await api.removeMyAvatar();
+
+  assert.equal(request.url, "https://api.test/api/account/avatar");
+  assert.equal(request.options.method, "DELETE");
+  assert.equal(request.options.headers.authorization, "Bearer access");
+});
+
 test("admin writes send the bearer token and JSON body", async () => {
   installBrowser();
   memory.set(
