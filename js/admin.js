@@ -536,6 +536,15 @@ function startPixelField() {
 async function onSignedIn(user) {
   const role = await getRole(user.id);
 
+  // A member can be signed in on the public site but has no place in
+  // the admin shell. Keep that session intact; point them home instead.
+  if (role === "member") {
+    noAccess("Member account", `
+      <p class="gate-sub">You are signed in as a member. The admin panel is only for editors and admins.</p>
+      <p class="gate-foot"><a href="./">Go back to the site</a> to view your profile.</p>`);
+    return;
+  }
+
   // A real sign-out in both cases, so a reload lands on the login form
   // rather than a half-authenticated dead end.
   if (!role || role === "pending") {

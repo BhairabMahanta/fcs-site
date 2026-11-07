@@ -79,8 +79,6 @@ jobs:
             --exclude='.codex' \
             --exclude='.opencode' \
             --exclude='.impeccable' \
-            --exclude='BACKEND-MIGRATION.md' \
-            --exclude='YOUR-ACTION-ITEMS.md' \
             --exclude='README.md' \
             --exclude='package.json' \
             --exclude='package-lock.json' \

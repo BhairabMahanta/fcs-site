@@ -11,6 +11,9 @@
  * ------------------------------------------------------------------
  */
 import { escapeHTML as esc, renderMarkdown, plainSummary, readingTime, emojiHTML } from "./markdown.js";
+import { avatarHTML } from "./avatar.js";
+
+export { avatarHTML };
 
 export const SITE = "https://thefreecodesubculture.github.io/fcs-site/";
 
@@ -34,18 +37,6 @@ export function postAuthors(post) {
 export function authorNames(authors) {
   const names = authors.map((a) => String(a.name).trim());
   return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-}
-
-const AVATAR_COLORS = ["#c78b1d", "#d9730d", "#448361", "#337ea9", "#9065b0", "#c14c8a", "#d44c47", "#9f6b53"];
-
-/** A round avatar: the person's photo, or their initials on a colour picked from their name. */
-export function avatarHTML(author, cls = "avatar") {
-  const name = String(author.name || "?").trim();
-  if (/^https:\/\/\S+$/i.test(author.avatar || "")) return `<img class="${cls}" src="${esc(author.avatar)}" alt="" loading="lazy" />`;
-  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => [...w][0]).join("").toUpperCase() || "?";
-  let hash = 0;
-  for (const c of name) hash = (hash * 31 + c.codePointAt(0)) >>> 0;
-  return `<span class="${cls} avatar-initials" style="background: ${AVATAR_COLORS[hash % AVATAR_COLORS.length]}" aria-hidden="true">${esc(initials)}</span>`;
 }
 
 /** Overlapping avatars, the first few, with "+n" for the rest. */
@@ -141,7 +132,6 @@ function shell({ root, title, description, url, image, imageAlt = "", body, type
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="${CSP}" />
   <script src="${root}js/theme-init.js"></script>
-  <script src="${root}js/page-transitions.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}" />
@@ -160,6 +150,7 @@ function shell({ root, title, description, url, image, imageAlt = "", body, type
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,700..800&family=Archivo+Mono&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="${root}css/style.css" />
   ${math ? `<link rel="stylesheet" href="${root}js/vendor/katex/katex.min.css" />` : ""}
+  <script src="${root}js/page-transitions.js"></script>
 </head>
 <body class="blog-page">
   <header class="blog-nav">

@@ -261,6 +261,7 @@ describe.skipIf(!hasTestDatabase)("API integration", () => {
 
     expect(forgot.status).toBe(200);
     expect(forgot.body.resetUrl).toBeTruthy();
+    expect(new URL(forgot.body.resetUrl).pathname.endsWith("/admin.html")).toBe(true);
 
     const token = new URL(forgot.body.resetUrl).hash.match(/token=([^&]+)/)?.[1];
     expect(token).toBeTruthy();
@@ -441,7 +442,10 @@ describe.skipIf(!hasTestDatabase)("API integration", () => {
     expect(signup.status).toBe(201);
     expect(signup.body.verifyUrl).toBeTruthy();
 
-    const verifyToken = new URL(signup.body.verifyUrl).hash.match(/verify=([^&]+)/)?.[1];
+    const verifyUrl = new URL(signup.body.verifyUrl);
+    expect(verifyUrl.pathname.endsWith("/")).toBe(true);
+    expect(verifyUrl.hash).toMatch(/^#verify=/);
+    const verifyToken = verifyUrl.hash.match(/verify=([^&]+)/)?.[1];
     expect(verifyToken).toBeTruthy();
 
     const blocked = await request(app)
@@ -464,6 +468,14 @@ describe.skipIf(!hasTestDatabase)("API integration", () => {
         where email = 'member@test.local' and event_id is null`,
     );
     expect(subscription.rows[0]?.confirmed_at).toBeTruthy();
+
+    const forgot = await request(app)
+      .post("/api/auth/forgot-password")
+      .send({ email: "member@test.local" });
+    expect(forgot.status).toBe(200);
+    const memberReset = new URL(forgot.body.resetUrl);
+    expect(memberReset.pathname.endsWith("/")).toBe(true);
+    expect(memberReset.hash).toContain("type=recovery");
 
     const directory = await request(app).get("/api/public/members");
     expect(directory.status).toBe(200);
@@ -525,6 +537,32 @@ describe.skipIf(!hasTestDatabase)("API integration", () => {
       "select confirmed_at from subscriptions where email = 'member@test.local' and event_id is null",
     );
     expect(restored.rows[0]?.confirmed_at).toBeTruthy();
+  });
+
+  it("uploads and removes a member avatar", async () => {
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+      "base64",
+    );
+
+    const uploaded = await request(app)
+      .post("/api/account/avatar")
+      .set("authorization", `Bearer ${memberToken}`)
+      .attach("file", png, { filename: "avatar.png", contentType: "image/png" });
+
+    expect(uploaded.status).toBe(200);
+    expect(uploaded.body.avatar_url).toContain("/media/members/avatars/");
+
+    const profile = await request(app)
+      .get("/api/account/profile")
+      .set("authorization", `Bearer ${memberToken}`);
+    expect(profile.body.avatar_url).toBe(uploaded.body.avatar_url);
+
+    const removed = await request(app)
+      .delete("/api/account/avatar")
+      .set("authorization", `Bearer ${memberToken}`);
+    expect(removed.status).toBe(200);
+    expect(removed.body.avatar_url).toBeNull();
   });
 
   it("rejects unsafe member profile URLs and usernames", async () => {

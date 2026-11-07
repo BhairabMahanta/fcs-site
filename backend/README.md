@@ -12,15 +12,35 @@ as the `fcs` user on the VPS. The frontend stays on GitHub Pages.
 ```text
 src/app.ts                 Express app, CORS, security headers, error mapping
 src/server.ts              process entry point
+src/routes/                route definitions; index.ts mounts every router
+src/controllers/           request parsing, validation and response shaping
+src/services/              business rules, SQL and external side effects
 src/config.ts              environment validation
 src/db/                    pool, transactions, migration runner
-src/routes/                auth, account, public, admin, analytics, media,
-                           mail, integrations, tracking
-src/services/              auth tokens and email delivery
-src/integrations/medium/   the Medium importer
+src/lib/                   generic helpers (http, tokens, passwords, images)
+src/middleware/            shared auth guards
+src/email/                 SMTP transport and email templates
+src/integrations/medium/   Medium parsing helpers and HTTP adapter
 migrations/                numbered, applied once and recorded
 test/                      unit and integration tests
 ```
+
+The layers are deliberately flat and conventional:
+
+- `routes/*.routes.ts` — URLs and route middleware only. Related public and
+  admin endpoints share one file (blog posts and blog drafts, for example).
+  `routes/index.ts` is the single mount point for every router.
+- `controllers/*.controller.ts` — zod validation, request parsing and the shape
+  of the response. Controllers never contain SQL.
+- `services/*.service.ts` — business rules, database queries and external calls.
+  Only areas with real logic get a service.
+- `integrations/medium/` — the Medium importer's pure helpers plus the small
+  HTTP adapter. The `.js` helpers stay here because the frontend tests import
+  them directly.
+
+Shared code lives in `lib/`, `middleware/`, `db/` and `email/`. To add a
+feature, add a route file (and a controller/service only if the feature needs
+one), then mount the router in `src/routes/index.ts`.
 
 ## Local development
 
@@ -111,7 +131,19 @@ TEST_DATABASE_URL=postgres://.../fcs_test npm test
 ```
 
 The integration suite truncates every application table, so never point it
-at production.
+at production. Use a **separate test role** as well as a separate database;
+do not reuse the production `fcs_app` role or change its password. On a local
+PostgreSQL installation:
+
+```bash
+sudo -u postgres psql <<'SQL'
+create role fcs_test_app login password 'test';
+create database fcs_test owner fcs_test_app;
+SQL
+```
+
+Then use `postgres://fcs_test_app:test@127.0.0.1:5432/fcs_test`. The test
+config also refuses to run if the database name does not contain `test`.
 
 ## Migrations
 
@@ -133,8 +165,8 @@ applied migration in the repository.
 - `/health` — database health.
 - `/api/auth/*` — member signup, email verification, login, refresh, logout,
   me, password reset and invite accept.
-- `/api/account/*` — member profile editing and the all-events email
-  preference; requires a verified account.
+- `/api/account/*` — member profile editing, avatar upload/removal and the
+  all-events email preference; requires a verified account.
 - `/api/public/*` — published events, classes, resources, groups, links,
   opted-in member profiles, repositories and blog posts.
 - `/api/admin/*` — CRUD for every content table, team and role management,
@@ -161,17 +193,18 @@ backend routes are ready for the frontend developer:
 Verification emails currently link to:
 
 ```text
-${PUBLIC_SITE_URL}/account.html#verify=<token>
+${PUBLIC_SITE_URL}/#verify=<token>
 ```
 
 Member password-reset emails currently link to:
 
 ```text
-${PUBLIC_SITE_URL}/account.html#type=recovery&token=<token>
+${PUBLIC_SITE_URL}/#type=recovery&token=<token>
 ```
 
-The frontend must provide that page, or the paths in
-`src/routes/auth.ts` must be changed to the route the frontend implements.
+Admin and editor reset emails still link to `admin.html`. The homepage
+handles both member links in the auth dialog; successful verification or
+password reset lands on `account.html`, the member profile page.
 
 ## Production and deploy
 

@@ -6,7 +6,7 @@
        GitHub and Discord. Limits what an injected script could do. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://fcs-api.akos-archives.in https://api.github.com https://discord.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <script src="js/theme-init.js"></script>
-  <script src="js/page-transitions.js"></script>
+  <script src="js/session-init.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Free Code Subculture | RFC 0001</title>
@@ -40,6 +40,7 @@
   />
 
   <link rel="stylesheet" href="css/style.css" />
+  <script src="js/page-transitions.js"></script>
 </head>
 <body>
   <!-- ============================================================
@@ -96,6 +97,19 @@
       <li><a href="#events" data-section="events">Events</a></li>
       <li><a href="blog/">Blog</a></li>
       <li><a href="#join" data-section="join">Join</a></li>
+      <li class="nav-auth-item">
+        <button
+          class="nav-auth"
+          id="nav-auth"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="auth-dialog"
+          aria-label="Log in or create an account"
+        >
+          <svg class="icon nav-auth-icon" aria-hidden="true" focusable="false"><use href="assets/icons.svg#i-user"></use></svg>
+          <span class="nav-auth-label">Login</span>
+        </button>
+      </li>
     </ul>
 
     <button
@@ -506,11 +520,28 @@
     </form>
   </dialog>
 
+  <dialog class="auth-dialog" id="auth-dialog" aria-labelledby="auth-title">
+    <div class="auth-shell">
+      <header class="auth-header">
+        <img class="auth-mark" src="assets/logoicon.svg" alt="" width="40" height="36" />
+        <div class="auth-heading">
+          <p class="auth-kicker" id="auth-kicker">// MEMBER ACCESS</p>
+          <h2 id="auth-title">Sign in</h2>
+        </div>
+        <button class="auth-close" id="auth-close" type="button" aria-label="Close">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="assets/icons.svg#i-close"></use></svg>
+        </button>
+      </header>
+      <div class="auth-body" id="auth-body"></div>
+    </div>
+  </dialog>
+
   <script src="js/theme.js"></script>
   <script src="js/config.js"></script>
   <script src="js/track.js" defer></script>
   <script src="js/data.js"></script>
   <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/auth.js"></script>
   <script type="module" src="js/footer-sky.js"></script>
 </body>
 </html>
