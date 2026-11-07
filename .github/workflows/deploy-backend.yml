@@ -68,13 +68,41 @@ jobs:
           pm2 startOrReload ecosystem.config.cjs --update-env
           pm2 save
 
-          if ! curl -fsS --retry 5 --retry-delay 2 http://127.0.0.1:5050/health; then
-            echo "Health check failed; rolling back to ${previous:-nothing}"
+          # PM2 can return before the app has bound its port. Poll instead
+          # of treating "connection refused" as a failed deployment.
+          healthy=0
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 2 http://127.0.0.1:5050/health >/dev/null 2>&1; then
+              healthy=1
+              break
+            fi
+            echo "Health check attempt ${attempt}/30 failed; waiting..."
+            sleep 1
+          done
+
+          if [ "$healthy" -ne 1 ]; then
+            echo "Health check failed after 30 attempts; rolling back to ${previous:-nothing}"
             if [ -n "$previous" ]; then
               ln -sfn "$previous" /srv/fcs-api/current
               cd /srv/fcs-api/current
               pm2 startOrReload ecosystem.config.cjs --update-env
               pm2 save
+
+              rollback_ok=0
+              for attempt in $(seq 1 15); do
+                if curl -fsS --max-time 2 http://127.0.0.1:5050/health >/dev/null 2>&1; then
+                  rollback_ok=1
+                  break
+                fi
+                sleep 1
+              done
+              if [ "$rollback_ok" -ne 1 ]; then
+                echo "Rollback health check also failed." >&2
+              else
+                echo "Rollback is healthy."
+              fi
             fi
             exit 1
           fi
+
+          echo "Health check passed."
