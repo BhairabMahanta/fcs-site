@@ -31,6 +31,7 @@ A horizontal bar that sticks to the top of the viewport (`position: sticky; top:
 - **Brand logotype** (`a.nav-brand`) — SVG logo + "TFCS" + `/RFC-0001`.
 - **Mobile toggle** (`button.nav-toggle`) — hamburger ↔ close, `aria-expanded` wired by `js/main.js`.
 - **Link list** (`ul.nav-links`) — seven jump links: About, Projects, Resources, Groups, Events, Blog, Join.
+- **Member control** (`.nav-auth-item`) — a Login button, replaced by the member's profile avatar once signed in. It opens the member dialog when signed out and the profile page (`account.html`) when signed in. See [MemberAuth.md](MemberAuth.md).
 - **Theme toggle** (`button.theme-toggle`) — moon / sun icons; sets `data-theme` on `<html>`.
 
 **Active-section tracking:** `js/main.js` uses an `IntersectionObserver` to watch all `[data-section]` links, adding `is-active` to the link whose section is mid-screen.

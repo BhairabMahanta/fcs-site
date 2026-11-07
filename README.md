@@ -71,6 +71,13 @@ npm install --no-save --no-package-lock playwright
 node tools/verify-page.mjs http://localhost:8000/
 ```
 
+## Member accounts
+
+The **Login** button next to **Join** opens the member dialog. Members can
+create an account, verify their email, sign in, reset a password, and manage
+their profile and avatar at `account.html`. There is no public member
+directory. See [`docs/MemberAuth.md`](docs/MemberAuth.md).
+
 ## Admin panel
 
 <http://localhost:8000/admin.html> locally; `/admin` once deployed.

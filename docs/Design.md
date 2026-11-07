@@ -42,6 +42,7 @@ The tech stack follows the same line: **plain HTML, CSS and ES modules**. No fra
 fcs-site/
 ├── index.html          — Public home page (the RFC document)
 ├── admin.html          — Admin panel (requires sign-in)
+├── account.html        — Member profile page (requires sign-in)
 ├── blog/               — Static blog output (written by tools/blog-build.mjs)
 ├── css/
 │   ├── style.css       — Main site stylesheet (tokens + sections)
@@ -52,6 +53,9 @@ fcs-site/
 │   ├── data.js         — Seed/fallback data + fixed page copy
 │   ├── main.js         — Public page bootstrap + section renders
 │   ├── admin.js        — Admin panel: routing, drawers, sections
+│   ├── auth.js         — Login/signup dialog and member nav state
+│   ├── session-init.js — Early session paint before modules load
+│   ├── profile.js      — Member profile page and avatar upload
 │   ├── blog-editor.js  — Full-screen block editor
 │   ├── supabase.js     — All database calls (one function per operation)
 │   ├── render.js       — Shared card/component HTML builders
@@ -152,7 +156,7 @@ This header is static HTML. The "last commit" value is populated by `js/main.js`
 
 ### Sticky Navigation
 
-A `<nav>` with the brand logotype and jump links to each section. On mobile it collapses behind a hamburger button. The active section highlights as the user scrolls (IntersectionObserver). The theme toggle lives here.
+A `<nav>` with the brand logotype and jump links to each section. On mobile it collapses behind a hamburger button. The active section highlights as the user scrolls. The theme toggle lives here, and the member Login/Profile control sits next to Join. Signed-out visitors get the login dialog; signed-in members go to the profile page. See [MemberAuth.md](MemberAuth.md).
 
 ### Section Map
 
@@ -554,4 +558,5 @@ The `refresh-site` edge function triggers step 4–5 when an editor publishes or
 | **Admin Panel Guide** | [`docs/AdminPanel.md`](AdminPanel.md) | Each admin section, drawer API, toast system, access model |
 | **Data & Schema Guide** | [`docs/DataSchema.md`](DataSchema.md) | Table-by-table reference, RLS policy map, migration history |
 | **Deploy & Toolchain Guide** | [`docs/Deploy.md`](Deploy.md) | Build scripts, GitHub Actions, edge functions, Supabase setup |
+| **Member Access Guide** | [`docs/MemberAuth.md`](MemberAuth.md) | Login/signup dialog, email links, profile page, avatar upload |
 | **Brand Guide** | [`docs/brand/README.md`](brand/README.md) | Colour palette, typography, logo usage |
