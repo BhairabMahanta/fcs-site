@@ -43,6 +43,7 @@ import { openMediumImport } from "./medium-import.js";
 import { openMemberPicker, memberCard } from "./member-picker.js";
 import { guessMember } from "./lib/member-match.js";
 import { clipTitle } from "./lib/medium-wizard.js";
+import { startPixelField } from "./lib/pixel-field.js";
 import {
   escapeHTML, escapeAttr, safeURL, icon, platformIcon, linkIcon, watchFavicons,
   coreCardHTML, portraitHTML, roleStamp,
@@ -236,7 +237,9 @@ async function boot() {
     signOut().then(() => location.reload());
   });
   bindDrawer();
-  startPixelField();
+  startPixelField(document.getElementById("pixel-field"), {
+    active: () => document.body.classList.contains("is-gate"),
+  });
 
   if (!isConfigured()) {
     gate(`
@@ -461,78 +464,6 @@ function noAccess(title, body) {
 /* The twinkling pixel field behind the gate. A few cells change per
  * frame at about 12 fps; still under reduced motion; stops for good once
  * someone signs in. */
-function startPixelField() {
-  const canvas = document.getElementById("pixel-field");
-  if (!canvas || !canvas.getContext) return;
-  const ctx = canvas.getContext("2d");
-  const STEP = 16;
-  const SIZE = 3;
-  let cols = 0;
-  let rows = 0;
-  let cells = [];
-
-  const colors = () => {
-    const css = getComputedStyle(document.documentElement);
-    return { ink: css.getPropertyValue("--ink").trim(), accent: css.getPropertyValue("--accent").trim() };
-  };
-
-  const resize = () => {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = innerWidth * dpr;
-    canvas.height = innerHeight * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cols = Math.ceil(innerWidth / STEP);
-    rows = Math.ceil(innerHeight / STEP);
-    cells = Array.from({ length: cols * rows }, () => ({
-      a: Math.random() < 0.55 ? 0 : Math.random() * 0.35,
-      yellow: Math.random() < 0.05,
-    }));
-  };
-
-  const draw = () => {
-    const { ink, accent } = colors();
-    ctx.clearRect(0, 0, innerWidth, innerHeight);
-    const cx = innerWidth / 2;
-    const cy = innerHeight / 2;
-    const reach = Math.hypot(cx, cy);
-    for (let i = 0; i < cells.length; i++) {
-      const cell = cells[i];
-      if (!cell.a) continue;
-      const x = (i % cols) * STEP + (STEP - SIZE) / 2;
-      const y = Math.floor(i / cols) * STEP + (STEP - SIZE) / 2;
-      // Quieter near the card, busier toward the edges.
-      const edge = Math.min(1, Math.hypot(x - cx, y - cy) / reach + 0.15);
-      ctx.globalAlpha = cell.a * edge * (cell.yellow ? 2.2 : 1);
-      ctx.fillStyle = cell.yellow ? accent : ink;
-      ctx.fillRect(x, y, SIZE, SIZE);
-    }
-    ctx.globalAlpha = 1;
-  };
-
-  resize();
-  draw();
-  window.addEventListener("resize", () => {
-    resize();
-    draw();
-  });
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  let last = 0;
-  const tick = (t) => {
-    if (!document.body.classList.contains("is-gate")) return; // signed in: stop
-    if (t - last > 80 && !document.hidden) {
-      last = t;
-      for (let n = 0; n < Math.ceil(cells.length * 0.02); n++) {
-        const cell = cells[(Math.random() * cells.length) | 0];
-        cell.a = Math.random() < 0.5 ? 0 : Math.random() * 0.35;
-      }
-      draw();
-    }
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
-}
-
 async function onSignedIn(user) {
   const role = await getRole(user.id);
 

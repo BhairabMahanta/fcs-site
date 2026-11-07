@@ -12,22 +12,29 @@ import {
   getSession,
   removeMyAvatar,
   signOut,
+  updateEmailPreferences,
   updateProfile,
   uploadMyAvatar,
 } from "./api.js";
 import { avatarHTML } from "./lib/avatar.js";
+import { startPixelField } from "./lib/pixel-field.js";
 import { escapeAttr, escapeHTML } from "./render.js";
 
 const root = document.getElementById("profile-root");
+const MAX_AVATAR_BYTES = 10 * 1024 * 1024;
+const AVATAR_SIZE = 512;
 
 let profile = null;
 let pageNotice = "";
 let pageTone = "ok";
+let noticeTimer = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   if (!root) return;
+
+  startPixelField(document.getElementById("profile-pixel-field"), { opacity: 0.55 });
 
   const params = new URLSearchParams(location.search);
   if (params.get("verified") === "1") {
@@ -98,13 +105,24 @@ function renderProfile() {
         ${github ? `<div><dt>GitHub</dt><dd><a href="${escapeAttr(github)}" target="_blank" rel="noopener">${escapeHTML(profile.github_username)}</a></dd></div>` : ""}
       </dl>
 
+      <div class="profile-preference">
+        <div>
+          <strong>Event emails</strong>
+          <span>Updates about events and the club.</span>
+        </div>
+        <button type="button" class="profile-switch${profile.email_updates ? " is-on" : ""}"
+          id="email-updates" role="switch" aria-checked="${profile.email_updates}">
+          ${profile.email_updates ? "On" : "Off"}
+        </button>
+      </div>
+
       <div class="profile-avatar-actions">
         <input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp" hidden />
         <button type="button" class="btn-subscribe" id="avatar-change"><span>Change photo</span></button>
         ${profile.avatar_url ? `<button type="button" class="link-button" id="avatar-remove">Remove photo</button>` : ""}
       </div>
       <p class="auth-status" id="avatar-status" role="status"></p>
-      <p class="auth-foot">JPG, PNG or WebP, up to 2 MB. Square images look best.</p>
+      <p class="auth-foot">JPG, PNG or WebP, up to 10 MB. Photos are cropped and resized to 512 px before upload.</p>
 
       <div class="profile-session-actions">
         ${adminLink}
@@ -148,7 +166,9 @@ function renderProfile() {
 
   bindAvatar();
   bindForm();
+  bindPreferences();
   bindSignOut();
+  armNoticeTimer();
 }
 
 function bindAvatar() {
@@ -162,14 +182,15 @@ function bindAvatar() {
   input.addEventListener("change", async () => {
     const file = input.files?.[0];
     if (!file) return;
+    clearPageNotice();
 
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       setStatus(status, "Use a JPG, PNG or WebP image.", "error");
       input.value = "";
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      setStatus(status, "That image is over 2 MB. Shrink it and try again.", "error");
+    if (file.size > MAX_AVATAR_BYTES) {
+      setStatus(status, "That image is over 10 MB. Choose a smaller one.", "error");
       input.value = "";
       return;
     }
@@ -180,10 +201,18 @@ function bindAvatar() {
     slot.innerHTML = `<img class="avatar profile-avatar" src="${preview}" alt="" />`;
 
     try {
-      const updated = await withBusy(change, "Uploading…", () => uploadMyAvatar(file));
+      setStatus(status, "Preparing photo…");
+      let upload = file;
+      try {
+        upload = await compressAvatar(file);
+      } catch {
+        // Fall back to the original file; the server still enforces 10 MB.
+        upload = file;
+      }
+
+      const updated = await withBusy(change, "Uploading…", () => uploadMyAvatar(upload));
       profile = updated;
-      pageNotice = "Profile photo updated.";
-      pageTone = "ok";
+      setPageNotice("Profile photo updated.");
       URL.revokeObjectURL(preview);
       renderProfile();
     } catch (error) {
@@ -202,11 +231,11 @@ function bindAvatar() {
   });
 
   remove?.addEventListener("click", async () => {
+    clearPageNotice();
     try {
       const updated = await withBusy(remove, "Removing…", () => removeMyAvatar());
       profile = updated;
-      pageNotice = "Profile photo removed.";
-      pageTone = "ok";
+      setPageNotice("Profile photo removed.");
       renderProfile();
     } catch (error) {
       setStatus(
@@ -220,15 +249,88 @@ function bindAvatar() {
   });
 }
 
+async function loadImage(file) {
+  if ("createImageBitmap" in window) {
+    const bitmap = await createImageBitmap(file);
+    return {
+      source: bitmap,
+      width: bitmap.width,
+      height: bitmap.height,
+      close: () => bitmap.close?.(),
+    };
+  }
+
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  image.src = url;
+  await image.decode();
+  return {
+    source: image,
+    width: image.naturalWidth,
+    height: image.naturalHeight,
+    close: () => URL.revokeObjectURL(url),
+  };
+}
+
+async function compressAvatar(file) {
+  const image = await loadImage(file);
+  try {
+    const side = Math.min(image.width, image.height);
+    if (!side) throw new Error("That image is empty.");
+
+    const size = Math.min(AVATAR_SIZE, side);
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Could not prepare the image.");
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, size, size);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(
+      image.source,
+      (image.width - side) / 2,
+      (image.height - side) / 2,
+      side,
+      side,
+      0,
+      0,
+      size,
+      size,
+    );
+
+    const blob =
+      (await canvasBlob(canvas, "image/webp", 0.86)) ||
+      (await canvasBlob(canvas, "image/jpeg", 0.9));
+    if (!blob) throw new Error("Could not prepare the image.");
+
+    return new File(
+      [blob],
+      blob.type === "image/webp" ? "avatar.webp" : "avatar.jpg",
+      { type: blob.type },
+    );
+  } finally {
+    image.close();
+  }
+}
+
+function canvasBlob(canvas, type, quality) {
+  return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+}
+
 function bindForm() {
   const form = root.querySelector("#profile-form");
   const errorEl = form.querySelector(".auth-error");
   const status = form.querySelector(".auth-status");
 
+  form.addEventListener("input", clearPageNotice);
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     errorEl.textContent = "";
     status.textContent = "";
+    clearPageNotice();
 
     const displayName = form.querySelector('input[name="display_name"]').value.trim();
     const website = form.querySelector('input[name="website_url"]').value.trim();
@@ -264,12 +366,38 @@ function bindForm() {
         }),
       );
       profile = updated;
-      pageNotice = "Profile saved.";
-      pageTone = "ok";
+      setPageNotice("Profile saved.");
       document.title = `${profile.display_name || profile.email} | The Free Code Subculture`;
       renderProfile();
     } catch (error) {
       errorEl.textContent = error.message || "Could not save your profile.";
+    }
+  });
+}
+
+function bindPreferences() {
+  const button = root.querySelector("#email-updates");
+  if (!button) return;
+
+  button.addEventListener("click", async () => {
+    clearPageNotice();
+    button.disabled = true;
+    try {
+      const result = await updateEmailPreferences(!profile.email_updates);
+      profile.email_updates = result.emailUpdates;
+      setPageNotice(
+        result.emailUpdates
+          ? "Event emails turned on."
+          : "Event emails turned off.",
+      );
+      renderProfile();
+    } catch (error) {
+      button.disabled = false;
+      setPageNotice(
+        error.message || "Could not update email preferences.",
+        "error",
+      );
+      renderProfile();
     }
   });
 }
@@ -279,6 +407,27 @@ function bindSignOut() {
     await withBusy(event.currentTarget, "Signing out…", () => signOut());
     location.href = "./";
   });
+}
+
+function setPageNotice(message, tone = "ok") {
+  pageNotice = message;
+  pageTone = tone;
+}
+
+function clearPageNotice() {
+  if (noticeTimer) {
+    clearTimeout(noticeTimer);
+    noticeTimer = null;
+  }
+  pageNotice = "";
+  root.querySelector(".profile-page-status")?.remove();
+}
+
+function armNoticeTimer() {
+  if (noticeTimer) clearTimeout(noticeTimer);
+  noticeTimer = null;
+  if (!pageNotice) return;
+  noticeTimer = setTimeout(clearPageNotice, 5000);
 }
 
 function setStatus(element, message, tone = "ok") {

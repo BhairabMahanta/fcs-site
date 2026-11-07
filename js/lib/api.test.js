@@ -243,6 +243,32 @@ test("removing an avatar sends a DELETE request", async () => {
   assert.equal(request.options.headers.authorization, "Bearer access");
 });
 
+test("email preference updates patch the switch state", async () => {
+  installBrowser();
+  memory.set(
+    "fcs-api-session",
+    JSON.stringify({
+      accessToken: "access",
+      refreshToken: "refresh",
+      user: { id: "u1", email: "member@example.com", role: "member" },
+    }),
+  );
+
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return json({ emailUpdates: false });
+  };
+
+  const api = await load();
+  const result = await api.updateEmailPreferences(false);
+
+  assert.equal(request.url, "https://api.test/api/account/email-preferences");
+  assert.equal(request.options.method, "PATCH");
+  assert.deepEqual(JSON.parse(request.options.body), { emailUpdates: false });
+  assert.equal(result.emailUpdates, false);
+});
+
 test("admin writes send the bearer token and JSON body", async () => {
   installBrowser();
   memory.set(
