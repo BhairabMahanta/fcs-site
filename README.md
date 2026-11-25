@@ -126,7 +126,8 @@ and branch protection is enabled.
   - rolls back to the previous release if the health check fails
 - `.github/workflows/pages.yml` builds the static blog and link-preview
   cards, stages only the frontend into `_site/`, and deploys GitHub Pages.
-  It runs on `master`, on a 30-minute schedule, and manually.
+  It runs on `master` and manually, and the admin panel starts it when a
+  post, event or class session changes.
 
 ## Backend security model
 

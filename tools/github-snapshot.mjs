@@ -5,8 +5,8 @@
  * the newest commit on the most recently pushed one, in the same shape
  * as the GitHub API responses the page would otherwise request.
  *
- * Run by .github/workflows/pages.yml before every deploy (every 30
- * minutes and on each push), with the workflow's GITHUB_TOKEN, so
+ * Run by .github/workflows/pages.yml before every deploy, with the
+ * workflow's GITHUB_TOKEN, so
  * visitors read one same-site file instead of calling the rate-limited
  * API themselves. If GitHub is unreachable the old file is kept and the
  * deploy goes ahead; the page then falls back to the live API.

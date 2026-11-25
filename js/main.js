@@ -206,7 +206,7 @@ async function cachedJSON(url, headers = {}) {
   }
 }
 
-/* data/github.json is written by the deploy workflow every 30 minutes
+/* data/github.json is written by the deploy workflow on every deploy
  * with the repository's own token (tools/github-snapshot.mjs). Reading
  * it means no visitor spends GitHub's 60-an-hour anonymous allowance.
  * Missing or older than three hours (a stalled workflow, or local
@@ -739,9 +739,9 @@ function bindIcs() {
   icsBound = true;
 }
 
-/* The calendar feed: events.ics, rebuilt by the deploy workflow every 30
- * minutes (tools/events-feed.mjs). Subscribing, rather than importing a
- * file, is what keeps someone's calendar up to date. */
+/* The calendar feed: events.ics, rebuilt by the deploy workflow
+ * (tools/events-feed.mjs); saving an event in the admin panel starts one.
+ * Subscribing, rather than importing a file, keeps a calendar up to date. */
 function bindCalendarMenu() {
   const menu = document.getElementById("cal-menu");
   if (!menu) return;

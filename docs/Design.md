@@ -506,16 +506,16 @@ All tools are plain Node.js ESM scripts in `tools/`. They have no watch mode; ea
 
 ### GitHub Actions Deploy
 
-`.github/workflows/pages.yml` runs on every push to `master`, every 30 minutes, and on demand:
+`.github/workflows/pages.yml` runs on every push to `master` and on demand:
 
 1. `npm ci`
 2. Run unit tests (`npm test`)
 3. `node tools/github-snapshot.mjs` → `data/github.json`
 4. `node tools/events-feed.mjs` → `events.ics`
 5. `node tools/blog-build.mjs` → `blog/`
-6. Publish with the GitHub Pages action
+6. Upload the artifact, then deploy it in a separate job
 
-The `refresh-site` edge function triggers step 4–5 when an editor publishes or updates a post, without waiting for the 30-minute schedule.
+The backend's `refresh-site` route starts the workflow when an editor publishes or updates a post, or saves an event or class session, so the build does not wait for a schedule.
 
 ### Edge Functions
 

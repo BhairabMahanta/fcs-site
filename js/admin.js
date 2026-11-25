@@ -754,6 +754,7 @@ const EDITORS = {
       duration_minutes: v.duration_minutes || 60,
     }),
     sortable: true,
+    rebuild: true,
     create: createClassSession,
     update: updateClassSession,
     remove: deleteClassSession,
@@ -938,14 +939,15 @@ const EVENT_FIELDS = [
   { name: "details", label: "Details", type: "textarea", wide: true },
 ];
 
-/* The post editor (js/blog-editor.js). A post that is, or was, live
- * changes the public site, so saving it starts a rebuild; a draft does not. */
-async function rebuildSite() {
+/* The static site is built by the Pages workflow. Anything the build reads
+ * (a live blog post, events.ics) starts a rebuild on save. `quiet` keeps a
+ * "Saved ..." toast from being followed by a second one. */
+async function rebuildSite({ quiet = false } = {}) {
   try {
     await refreshSite();
-    toast("Rebuilding the site. The change is live in about a minute.", "info");
+    if (!quiet) toast("Rebuilding the site. The change is live in about a minute.", "info");
   } catch {
-    toast("Saved, but the rebuild did not start. It will go live within 30 minutes.", "info");
+    toast("Saved, but the rebuild did not start. It will go live on the next deploy.", "info");
   }
 }
 
@@ -1644,6 +1646,7 @@ function openEditor(id, row, initial = null) {
       }
       await refresh();
       toast(`${row ? "Saved" : "Created"} ${editor.noun} ${quoted(editor.title(values))}.`);
+      if (editor.rebuild) rebuildSite({ quiet: true });
     },
     onDelete: row && (async () => {
       try {
@@ -1653,6 +1656,7 @@ function openEditor(id, row, initial = null) {
         toast(`Deleted ${editor.noun} ${quoted(editor.title(row))}.`, "delete", {
           action: { label: "Undo", run: () => undoDelete(editor.table, key, `${editor.noun} ${quoted(editor.title(row))}`) },
         });
+        if (editor.rebuild) rebuildSite({ quiet: true });
       } catch (err) {
         toast(err.message || "Could not delete. Only admins can delete.", "error");
       }
@@ -1753,6 +1757,7 @@ async function onCardDropped(evt) {
     if (moved && moved.stage !== stage) await updateEvent(id, { stage });
     await Promise.all(ids.map((cardId, index) => updateEvent(cardId, { sort_order: index })));
     toast(moved && moved.stage !== stage ? `Moved ${quoted(moved.title)} to ${stage}.` : "Order saved.", "info");
+    if (moved && moved.stage !== stage) rebuildSite({ quiet: true });
   } catch (err) {
     state.data.events = previous;
     renderBoard();
@@ -1788,6 +1793,7 @@ function openEventEditor(id) {
       else await createEvent(patch);
       await refresh();
       toast(`${event ? "Saved" : "Created"} event ${quoted(values.title)}.`);
+      rebuildSite({ quiet: true });
     },
     onDelete: event && (async () => {
       try {
@@ -1797,6 +1803,7 @@ function openEventEditor(id) {
         toast(`Deleted event ${quoted(event.title)}.`, "delete", {
           action: { label: "Undo", run: () => undoDelete("events", event.id, `event ${quoted(event.title)}`) },
         });
+        rebuildSite({ quiet: true });
       } catch (err) {
         toast(err.message || "Could not delete. Only admins can delete.", "error");
       }
@@ -3307,6 +3314,7 @@ async function undoDelete(table, rowId, label) {
     renderSidebar();
     renderPage();
     toast(`Restored ${label}.`, "success");
+    if (table === "events" || table === "class_sessions") rebuildSite({ quiet: true });
   } catch (err) {
     toast(err.message || "Could not restore.", "error");
   }
