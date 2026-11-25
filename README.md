@@ -94,7 +94,7 @@ directory. See [`docs/MemberAuth.md`](docs/MemberAuth.md).
 |---|---|
 | Principles, contribution lanes | Fixed page copy in `js/data.js` |
 | Events, schedule, resources, study groups, social links, core members, blog | PostgreSQL through the backend API |
-| Projects | GitHub API, refreshed into `data/github.json` by the deploy |
+| Projects | GitHub API through the backend, cached for 10 minutes |
 | Fallback for database content | the `SEED_*` arrays in `js/data.js` |
 
 The `SEED_*` arrays are a fallback only. Edit content in the admin panel, not

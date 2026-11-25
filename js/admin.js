@@ -25,7 +25,7 @@ import {
   createSocialLink, updateSocialLink, deleteSocialLink,
   createCoreMember, updateCoreMember, deleteCoreMember,
   createBlogPost, updateBlogPost, deleteBlogPost, uploadBlogImage,
-  saveRepoKind, deleteRepoKind, refreshSite,
+  saveRepoKind, deleteRepoKind, refreshSite, getRepositories, refreshRepositories,
   analyticsReport, getAnalyticsAccess, setAnalyticsAccess,
   listProfiles, setProfileRole, removeMember, watchMyAccess,
   eventMail, listSubscriptions, addSubscribers, removeSubscription, listEmailSends,
@@ -2870,12 +2870,12 @@ function bindLinkMaker(scope) {
  *
  * Also here: pin projects to the top (in an order you set), link a
  * repo to a study group (it is listed on that group's card), and
- * "Refresh now", which re-reads GitHub and redeploys the site.
+ * "Refresh now", which refreshes the backend's cached list.
  *
- * The list comes from data/github.json (written by the deploy
- * workflow), or from GitHub's API when that file is empty (locally) or
- * on Refresh. Choices are saved to repo_kinds with upserts, never
- * deletes: only admins may delete, and editors curate repos as well.
+ * The list comes from the backend cache, or from GitHub's API when the
+ * backend is unreachable. Choices are saved to repo_kinds with upserts,
+ * never deletes: only admins may delete, and editors curate repos as
+ * well.
  * ================================================================== */
 
 const REPO_PLACES = [
@@ -2887,13 +2887,11 @@ const REPO_PLACES = [
 async function loadOrgRepos({ fresh = false } = {}) {
   if (state.orgRepos && !fresh) return state.orgRepos;
   let repos = [];
-  if (!fresh) {
-    try {
-      const snap = await (await fetch("data/github.json", { cache: "no-cache" })).json();
-      repos = Array.isArray(snap.repos) ? snap.repos : [];
-    } catch {
-      /* no snapshot: ask GitHub below */
-    }
+  try {
+    const snapshot = fresh ? await refreshRepositories() : await getRepositories();
+    if (snapshot && Array.isArray(snapshot.repos)) repos = snapshot.repos;
+  } catch {
+    /* backend unavailable: ask GitHub below */
   }
   if (!repos.length) {
     const res = await fetch(`https://api.github.com/orgs/${encodeURIComponent(window.GITHUB_ORG)}/repos?per_page=100&sort=pushed`, {
@@ -2946,7 +2944,7 @@ async function renderReposPage(page) {
         ${[["all", `All (${repos.length})`], ...REPO_PLACES.map(([k, label]) => [k, `${k === "hidden" ? label : `${label}s`} (${count(k)})`])].map(([value, label]) => `
           <button type="button" class="chip${filter === value ? " is-active" : ""}" aria-pressed="${filter === value}" data-repo-filter="${value}">${label}</button>`).join("")}
       </div>
-      <button type="button" class="btn" id="repo-refresh" title="Re-read the list from GitHub and redeploy the site">${icon("undo")}<span>Refresh now</span></button>
+      <button type="button" class="btn" id="repo-refresh" title="Re-read the list from GitHub">${icon("undo")}<span>Refresh now</span></button>
     </div>
     ${shown.length ? `<ol class="list repo-list">${shown.map((r) => {
       const place = placeOf(r);
@@ -3026,9 +3024,8 @@ async function renderReposPage(page) {
     try {
       await busy(button, "Refreshing…", async () => {
         await loadOrgRepos({ fresh: true });
-        await refreshSite();
       });
-      toast("Re-read from GitHub. The site is redeploying and will match in about two minutes.", "success");
+      toast("Re-read from GitHub. Repositories are up to date.", "success");
     } catch (err) {
       toast(err.message || "Could not refresh.", "error");
     }
